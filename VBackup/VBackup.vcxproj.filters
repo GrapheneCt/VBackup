@@ -1,0 +1,116 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;cc;s;asm</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp</Extensions>
+    </Filter>
+    <Filter Include="Source Files\backup_core">
+      <UniqueIdentifier>{8d20c866-518b-4c11-b033-10c75f18768f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\menus">
+      <UniqueIdentifier>{0b1b921d-a64f-4be8-93a4-a210d1db6dad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\backup_core">
+      <UniqueIdentifier>{f621ca31-e0c4-4ded-a6a9-0785b97704a9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\menus">
+      <UniqueIdentifier>{e28bb022-2df4-4a62-aef3-2d493a4d28a5}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="backup_core\fat_format.c">
+      <Filter>Source Files\backup_core</Filter>
+    </ClCompile>
+    <ClCompile Include="backup_core\file_copy.c">
+      <Filter>Source Files\backup_core</Filter>
+    </ClCompile>
+    <ClCompile Include="backup_core\fs_list.c">
+      <Filter>Source Files\backup_core</Filter>
+    </ClCompile>
+    <ClCompile Include="paf_runtime.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="backup_core\br_core.c">
+      <Filter>Source Files\backup_core</Filter>
+    </ClCompile>
+    <ClCompile Include="menus\menu_settings.cpp">
+      <Filter>Source Files\menus</Filter>
+    </ClCompile>
+    <ClCompile Include="utils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="menus\menu_list.cpp">
+      <Filter>Source Files\menus</Filter>
+    </ClCompile>
+    <ClCompile Include="menus\menu_main.cpp">
+      <Filter>Source Files\menus</Filter>
+    </ClCompile>
+    <ClCompile Include="sfo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="menus\menu_search.cpp">
+      <Filter>Source Files\menus</Filter>
+    </ClCompile>
+    <ClCompile Include="dialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="menus\menu_backup.cpp">
+      <Filter>Source Files\menus</Filter>
+    </ClCompile>
+    <ClCompile Include="backup_core\paf_gzip.c">
+      <Filter>Source Files\backup_core</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="menus\menu_settings.h">
+      <Filter>Header Files\menus</Filter>
+    </ClInclude>
+    <ClInclude Include="backup_core\br_core.h">
+      <Filter>Header Files\backup_core</Filter>
+    </ClInclude>
+    <ClInclude Include="backup_core\fat_format.h">
+      <Filter>Header Files\backup_core</Filter>
+    </ClInclude>
+    <ClInclude Include="backup_core\file_copy.h">
+      <Filter>Header Files\backup_core</Filter>
+    </ClInclude>
+    <ClInclude Include="backup_core\fs_list.h">
+      <Filter>Header Files\backup_core</Filter>
+    </ClInclude>
+    <ClInclude Include="utils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="common.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="menus\menu_list.h">
+      <Filter>Header Files\menus</Filter>
+    </ClInclude>
+    <ClInclude Include="menus\menu_main.h">
+      <Filter>Header Files\menus</Filter>
+    </ClInclude>
+    <ClInclude Include="sfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="menus\menu_search.h">
+      <Filter>Header Files\menus</Filter>
+    </ClInclude>
+    <ClInclude Include="dialog.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="menus\menu_backup.h">
+      <Filter>Header Files\menus</Filter>
+    </ClInclude>
+    <ClInclude Include="backup_core\paf_gzip.h">
+      <Filter>Header Files\backup_core</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

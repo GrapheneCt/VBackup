@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.1525
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VBackup", "VBackup\VBackup.vcxproj", "{70282903-8A7D-4A19-91ED-DF4772E6FC14}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|PSVita = Debug|PSVita
+		Release|PSVita = Release|PSVita
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{70282903-8A7D-4A19-91ED-DF4772E6FC14}.Debug|PSVita.ActiveCfg = Debug|PSVita
+		{70282903-8A7D-4A19-91ED-DF4772E6FC14}.Debug|PSVita.Build.0 = Debug|PSVita
+		{70282903-8A7D-4A19-91ED-DF4772E6FC14}.Release|PSVita.ActiveCfg = Release|PSVita
+		{70282903-8A7D-4A19-91ED-DF4772E6FC14}.Release|PSVita.Build.0 = Release|PSVita
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {AF0C7597-4A46-4AF9-B208-9BF7B2556509}
+	EndGlobalSection
+EndGlobal
