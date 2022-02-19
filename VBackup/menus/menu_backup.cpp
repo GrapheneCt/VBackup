@@ -424,11 +424,14 @@ menu::backup::Page::~Page()
 		delete backupThread;
 	}
 
-	searchParam.hash = VBUtils::GetHash("app_icon_simple_main_backup_icon");
-	commonWidget = g_root->GetChildByHash(&searchParam, 0);
+	if (s_lastIconTex) {
+		searchParam.hash = VBUtils::GetHash("app_icon_simple_main_backup_icon");
+		commonWidget = g_root->GetChildByHash(&searchParam, 0);
 
-	commonWidget->SetTextureBase(&g_defaultTex);
-	delete s_lastIconTex;
+		commonWidget->SetTextureBase(&g_defaultTex);
+		delete s_lastIconTex;
+		s_lastIconTex = SCE_NULL;
+	}
 
 	searchParam.hash = VBUtils::GetHash("plane_main_backup_bg");
 	commonWidget = g_root->GetChildByHash(&searchParam, 0);
