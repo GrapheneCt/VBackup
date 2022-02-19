@@ -217,9 +217,31 @@ int fs_list_copy(const FSListEntry *pEnt, const char *dst, BREventCallback callb
 
 /* BR HELPERS */
 
+int restore_license_helper(char *rif_path, int rif_path_size, const char *rif_name, SceNpDrmLicense *license) {
+
+	int res;
+
+	sce_paf_snprintf(rif_path, rif_path_size, "grw0:license/%s", rif_name);
+
+	res = read_file(rif_path, license, sizeof(*license));
+	if (res == sizeof(*license)) {
+		res = sceNpDrmGetRifInfo(license, sizeof(*license), 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+		if (res < 0) {
+			SCE_DBG_LOG_ERROR("sceNpDrmGetRifInfo(): 0x%08X\n", res);
+		}
+	}
+	else {
+		SCE_DBG_LOG_ERROR("read_file(%s): 0x%08X\n", rif_path, res);
+		res = -1;
+	}
+
+	return res;
+}
+
 int restore_license(const char *restore_temp_path) {
 
 	int res;
+	SceUInt64 account_id = 0LL;
 	char path[0x80], rif_name[0x30], rif_path[0x80];
 	SceNpDrmLicense license;
 
@@ -234,8 +256,6 @@ int restore_license(const char *restore_temp_path) {
 		}
 	}
 
-	SCE_DBG_LOG_DEBUG("Doesn't found license\n");
-
 	if (res >= 0) {
 		res = sceIoRemove(path);
 		if (res < 0) {
@@ -244,6 +264,34 @@ int restore_license(const char *restore_temp_path) {
 		}
 	}
 
+	// Find to account license file.
+	res = sceRegMgrGetKeyBin("/CONFIG/NP/", "account_id", &account_id, sizeof(account_id));
+	if (res >= 0) {
+		res = _sceNpDrmGetRifName(rif_name, account_id);
+		if (res < 0) {
+			SCE_DBG_LOG_ERROR("_sceNpDrmGetRifName(): 0x%08X\n", res);
+			return res;
+		}
+
+		res = restore_license_helper(rif_path, sizeof(rif_path), rif_name, &license);
+		if (res >= 0) {
+			return file_copy(path, rif_path);
+		}
+
+		res = _sceNpDrmGetFixedRifName(rif_name, account_id);
+		if (res < 0) {
+			SCE_DBG_LOG_ERROR("_sceNpDrmGetFixedRifName(): 0x%08X\n", res);
+			return res;
+		}
+
+		res = restore_license_helper(rif_path, sizeof(rif_path), rif_name, &license);
+		if (res >= 0) {
+			return file_copy(path, rif_path);
+		}
+	}
+
+	SCE_DBG_LOG_DEBUG("Doesn't found account license. Retry as prefixed AID\n");
+
 	for (int i = 0; i < 3; i++) {
 		res = _sceNpDrmGetRifName(rif_name, restore_aid_list[i]);
 		if (res < 0) {
@@ -251,24 +299,26 @@ int restore_license(const char *restore_temp_path) {
 			return res;
 		}
 
-		sce_paf_snprintf(rif_path, sizeof(rif_path), "grw0:license/%s", rif_name);
-
-		res = read_file(rif_path, &license, sizeof(license));
-		if (res == sizeof(license)) {
-			res = sceNpDrmGetRifInfo(&license, sizeof(license), 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-			if (res == 0) {
-				return file_copy(path, rif_path);
-			}
-			else {
-				SCE_DBG_LOG_ERROR("sceNpDrmGetRifInfo(): 0x%08X\n", res);
-			}
-		}
-		else {
-			SCE_DBG_LOG_ERROR("read_file(%s): 0x%08X\n", rif_path, res);
+		res = restore_license_helper(rif_path, sizeof(rif_path), rif_name, &license);
+		if (res >= 0) {
+			return file_copy(path, rif_path);
 		}
 	}
 
-	SCE_DBG_LOG_ERROR("Doesn't found license\n");
+	for (int i = 0; i < 3; i++) {
+		res = _sceNpDrmGetFixedRifName(rif_name, restore_aid_list[i]);
+		if (res < 0) {
+			SCE_DBG_LOG_ERROR("_sceNpDrmGetFixedRifName(): 0x%08X\n", res);
+			return res;
+		}
+
+		res = restore_license_helper(rif_path, sizeof(rif_path), rif_name, &license);
+		if (res >= 0) {
+			return file_copy(path, rif_path);
+		}
+	}
+
+	SCE_DBG_LOG_ERROR("Doesn't found license (final)\n");
 
 	return -1;
 }
