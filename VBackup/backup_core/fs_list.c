@@ -304,8 +304,6 @@ int fs_list_get_full_size(const FSListEntry *pEnt, SceUInt64 *pSize, SceUInt32 *
 
 int fs_list_remove_callback(FSListEntry *ent, void *argp){
 
-	// sceClibPrintf("Remove: %s\n", ent->path_full);
-
 	if(SCE_STM_ISDIR(ent->ent.d_stat.st_mode)){
 		return sceIoRmdir(ent->path_full);
 	}
