@@ -12,6 +12,7 @@
 #include "common.h"
 
 static thread::JobQueue *s_cbJobQueue = SCE_NULL;
+static SceBool s_powerTickTaskState = SCE_FALSE;
 
 SceUInt32 VBUtils::GetHash(const char *name)
 {
@@ -67,10 +68,17 @@ SceVoid VBUtils::PowerTickTask(ScePVoid pUserData)
 
 SceVoid VBUtils::SetPowerTickTask(SceBool enable)
 {
-	if (enable)
+	if (enable == s_powerTickTaskState)
+		return;
+
+	if (enable) {
 		common::Utils::AddMainThreadTask(VBUtils::PowerTickTask, SCE_NULL);
-	else
+		s_powerTickTaskState = SCE_TRUE;
+	}
+	else {
 		common::Utils::RemoveMainThreadTask(VBUtils::PowerTickTask, SCE_NULL);
+		s_powerTickTaskState = SCE_FALSE;
+	}
 
 }
 

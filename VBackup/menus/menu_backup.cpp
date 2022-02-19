@@ -222,6 +222,13 @@ SceVoid menu::backup::BackupThread::EntryFunction()
 		topText->SetLabel(&text16);
 		thread::s_mainThreadMutex.Unlock();
 
+		text16.Clear();
+		text16 = VBUtils::GetString("msg_wait");
+
+		thread::s_mainThreadMutex.Lock();
+		bottomText->SetLabel(&text16);
+		thread::s_mainThreadMutex.Unlock();
+
 		// Load icon0 texture
 		text8.Clear();
 		if (g_currentPagemode == menu::main::Pagemode_Backup) {
@@ -304,8 +311,10 @@ SceVoid menu::backup::BackupThread::EntryFunction()
 
 			if (res < 0) {
 				if (res == SCE_ERROR_ERRNO_ENOMEM) {
+					VBUtils::SetPowerTickTask(SCE_FALSE);
 					Dialog::OpenError(g_vbPlugin, res, VBUtils::GetString("msg_enomem"));
 					Dialog::WaitEnd();
+					VBUtils::SetPowerTickTask(SCE_TRUE);
 				}
 				else if (res == SCE_ERROR_ERRNO_EINTR) {
 					do_delete_backup(ptext8->data, g_backupEntryList[i]->name->string.data);
@@ -313,8 +322,10 @@ SceVoid menu::backup::BackupThread::EntryFunction()
 					break;
 				}
 				else {
+					VBUtils::SetPowerTickTask(SCE_FALSE);
 					Dialog::OpenError(g_vbPlugin, res);
 					Dialog::WaitEnd();
+					VBUtils::SetPowerTickTask(SCE_TRUE);
 				}
 			}
 			
@@ -350,11 +361,13 @@ SceVoid menu::backup::BackupThread::EntryFunction()
 			SCE_DBG_LOG_TRACE("Restore end: 0x%X\n", res);
 
 			if (res < 0) {
+				VBUtils::SetPowerTickTask(SCE_FALSE);
 				if (res == SCE_ERROR_ERRNO_ENOMEM)
 					Dialog::OpenError(g_vbPlugin, res, VBUtils::GetString("msg_enomem"));
 				else
 					Dialog::OpenError(g_vbPlugin, res);
 				Dialog::WaitEnd();
+				VBUtils::SetPowerTickTask(SCE_TRUE);
 			}
 
 			delete ptext8;

@@ -611,7 +611,8 @@ int do_backup_core(const char *path, const char *titleid, FSListEntry *pAppEnt, 
 	}
 
 	sce_paf_snprintf(temp_path, sizeof(temp_path), "%s/sce_sys/param.sfo", backup_path);
-	res = file_copy(temp_path, "grw0:app/sce_sys/param.sfo");
+	sce_paf_snprintf(temp_path2, sizeof(temp_path2), "ux0:app/%s/sce_sys/param.sfo", titleid);
+	res = file_copy(temp_path, temp_path2);
 	if (res < 0) {
 		SCE_DBG_LOG_ERROR("file_copy(): 0x%08X\n", res);
 		return res;
