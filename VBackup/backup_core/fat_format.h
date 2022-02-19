@@ -8,7 +8,7 @@ extern "C" {
 
 int fat_format_init(void);
 
-int create_backup_image(const char *path, SceUInt64 size);
+int create_backup_image(const char *path, SceUInt32 nFile, SceUInt64 size);
 
 #ifdef __cplusplus
 }

@@ -537,7 +537,7 @@ int do_backup_core(const char *path, const char *titleid, FSListEntry *pAppEnt, 
 		BR_event_callback(BR_EVENT_NOTICE_CONT_NUMBER, BR_STATUS_NONE, (SceUInt64)nFile, NULL, NULL);
 
 	sce_paf_snprintf(temp_path, sizeof(temp_path), "%s/appcont.bin", backup_path);
-	res = create_backup_image(temp_path, size);
+	res = create_backup_image(temp_path, nFile, size);
 	if (res < 0) {
 		SCE_DBG_LOG_ERROR("create_backup_image(): 0x%08X\n", res);
 		return res;

@@ -94,13 +94,27 @@ int sceFatfsExecFormat(const char *s, SceSize bytePerCluster, SceUInt32 sce_fs_t
 	return res;
 }
 
-int create_backup_image(const char *path, SceUInt64 size){
+int create_backup_image(const char *path, SceUInt32 nFile, SceUInt64 size){
 
 	int res;
 	SceUID fd;
 	SceUInt32 ftype;
+	SceSize bytePerCluster;
 	SceIoStat stat;
-	stat.st_size = size + 0x80000;
+
+	if(size >= SCE_KERNEL_512MiB){
+		ftype = SCE_FAT_FORMAT_TYPE_EXFAT;
+		bytePerCluster = SCE_KERNEL_128KiB;
+	}else if(size >= SCE_KERNEL_16MiB){
+		ftype = SCE_FAT_FORMAT_TYPE_FAT16;
+		bytePerCluster = SCE_KERNEL_4KiB;
+	}else{
+		ftype = SCE_FAT_FORMAT_TYPE_FAT12;
+		bytePerCluster = SCE_KERNEL_4KiB;
+	}
+
+	stat.st_size = size + ((bytePerCluster >> 2) * nFile); // All file size + file fat entry block size
+	stat.st_size = (stat.st_size + (bytePerCluster - 1)) & ~(bytePerCluster - 1); // Size alignment by bytePerCluster
 
 	fd = sceIoOpen(path, SCE_O_RDONLY | SCE_O_WRONLY | SCE_O_CREAT | SCE_O_TRUNC, 0666);
 	if(fd < 0){
@@ -110,22 +124,12 @@ int create_backup_image(const char *path, SceUInt64 size){
 	res = sceIoChstatByFd(fd, &stat, SCE_CST_SIZE);
 	sceIoClose(fd);
 
-	if(stat.st_size >= SCE_KERNEL_512MiB){
-		ftype = SCE_FAT_FORMAT_TYPE_EXFAT;
-	}else if(stat.st_size >= SCE_KERNEL_16MiB){
-		ftype = SCE_FAT_FORMAT_TYPE_FAT16;
-	}else{
-		ftype = SCE_FAT_FORMAT_TYPE_FAT12;
-	}
-
 	if(res >= 0){
-		res = sceFatfsExecFormat(path, 0, ftype);
+		res = sceFatfsExecFormat(path, bytePerCluster, ftype);
 	}
 
 	return res;
 }
-
-
 
 int fat_format_init(void){
 
