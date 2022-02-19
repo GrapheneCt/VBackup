@@ -21,7 +21,7 @@ typedef struct FSListEntry {
 int fs_list_init(FSListEntry **ppEnt, const char *path, SceUInt32 *pnDir, SceUInt32 *pnFile);
 int fs_list_fini(FSListEntry *pEnt);
 
-int fs_list_get_full_size(const FSListEntry *pEnt, SceUInt64 *pSize, SceUInt32 *pnFile);
+int fs_list_get_full_size(const FSListEntry *pEnt, SceUInt64 *pSize, SceUInt32 *pnFile, SceUInt32 *pnDir);
 int fs_list_remove(FSListEntry *pEnt);
 
 int fs_list_execute(const FSListEntry *pEnt, int(*callback)(const FSListEntry *ent, void *argp), void *argp);

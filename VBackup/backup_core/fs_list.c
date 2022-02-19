@@ -274,19 +274,29 @@ int fs_list_get_full_size_callback(const FSListEntry *ent, void *argp){
 	if (!SCE_STM_ISDIR(ent->ent.d_stat.st_mode)) {
 		*(SceUInt64 *)(argp + 0x10) += 1;
 	}
+	else {
+		*(SceUInt64 *)(argp + 0x18) += 1;
+	}
 
 	return 0;
 }
 
-int fs_list_get_full_size(const FSListEntry *pEnt, SceUInt64 *pSize, SceUInt32 *pnFile) {
+int fs_list_get_full_size(const FSListEntry *pEnt, SceUInt64 *pSize, SceUInt32 *pnFile, SceUInt32 *pnDir) {
 
 	int res;
-	SceUInt64 size[3] = { 0LL, 0x1000LL, 0LL };
+	SceUInt64 size[4] = { 0LL /* size */, 0x1000LL /* align */, 0LL /* nFile */, 0LL /* nDir */ };
 
 	res = fs_list_execute(pEnt, fs_list_get_full_size_callback, size);
 	if (res >= 0) {
-		*pSize += size[0];
-		*pnFile += (SceUInt32)size[2];
+		if (NULL != pSize) {
+			*pSize += size[0];
+		}
+		if (NULL != pnFile) {
+			*pnFile += (SceUInt32)size[2];
+		}
+		if (NULL != pnDir) {
+			*pnDir += (SceUInt32)size[3];
+		}
 	}
 
 	return res;

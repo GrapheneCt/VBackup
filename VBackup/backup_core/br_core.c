@@ -496,19 +496,19 @@ int do_backup_core(const char *path, const char *titleid, FSListEntry *pAppEnt, 
 		return res;
 	}
 
-	SceUInt32 nFile = 0;
+	SceUInt32 nFile = 0, nDir = 0;
 	SceUInt64 size = 0LL;
 	SceUInt64 devMaxSize = 0LL;
 	SceUInt64 devFreeSize = 0LL;
 
 	if (pAppEnt)
-		fs_list_get_full_size(pAppEnt, &size, &nFile);
+		fs_list_get_full_size(pAppEnt, &size, &nFile, &nDir);
 	if (pAppMetaEnt)
-		fs_list_get_full_size(pAppMetaEnt, &size, &nFile);
+		fs_list_get_full_size(pAppMetaEnt, &size, &nFile, &nDir);
 	if (pLicenseEnt)
-		fs_list_get_full_size(pLicenseEnt, &size, &nFile);
+		fs_list_get_full_size(pLicenseEnt, &size, &nFile, &nDir);
 	if (pSavedataEnt)
-		fs_list_get_full_size(pSavedataEnt, &size, &nFile);
+		fs_list_get_full_size(pSavedataEnt, &size, &nFile, &nDir);
 
 	char *devEnd = sce_paf_strchr(path, ':');
 	int len = devEnd - path + 1;
@@ -537,7 +537,7 @@ int do_backup_core(const char *path, const char *titleid, FSListEntry *pAppEnt, 
 		BR_event_callback(BR_EVENT_NOTICE_CONT_NUMBER, BR_STATUS_NONE, (SceUInt64)nFile, NULL, NULL);
 
 	sce_paf_snprintf(temp_path, sizeof(temp_path), "%s/appcont.bin", backup_path);
-	res = create_backup_image(temp_path, nFile, size);
+	res = create_backup_image(temp_path, (SceUInt64)(nFile + nDir), size);
 	if (res < 0) {
 		SCE_DBG_LOG_ERROR("create_backup_image(): 0x%08X\n", res);
 		return res;

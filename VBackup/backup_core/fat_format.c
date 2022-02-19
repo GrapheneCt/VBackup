@@ -94,7 +94,7 @@ int sceFatfsExecFormat(const char *s, SceSize bytePerCluster, SceUInt32 sce_fs_t
 	return res;
 }
 
-int create_backup_image(const char *path, SceUInt32 nFile, SceUInt64 size){
+int create_backup_image(const char *path, SceUInt64 nEntry, SceUInt64 size){
 
 	int res;
 	SceUID fd;
@@ -113,7 +113,7 @@ int create_backup_image(const char *path, SceUInt32 nFile, SceUInt64 size){
 		bytePerCluster = SCE_KERNEL_4KiB;
 	}
 
-	stat.st_size = size + ((bytePerCluster >> 2) * nFile); // All file size + file fat entry block size
+	stat.st_size = size + (bytePerCluster * nEntry); // All file size + file fat entry block size
 	stat.st_size = (stat.st_size + (bytePerCluster - 1)) & ~(bytePerCluster - 1); // Size alignment by bytePerCluster
 
 	fd = sceIoOpen(path, SCE_O_RDONLY | SCE_O_WRONLY | SCE_O_CREAT | SCE_O_TRUNC, 0666);
