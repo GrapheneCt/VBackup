@@ -170,6 +170,9 @@ int fs_list_copy_callback(const FSListEntry *ent, void *argp) {
 	SceSize path_len = sce_paf_strlen(dst) + sce_paf_strlen(path);
 
 	char *dst_path = sce_paf_malloc(path_len + 1);
+	if (NULL == dst_path) {
+		return SCE_ERROR_ERRNO_ENOMEM;
+	}
 
 	sce_paf_snprintf(dst_path, path_len + 1, "%s%s", dst, path);
 
@@ -231,9 +234,12 @@ int restore_license(const char *restore_temp_path) {
 		}
 	}
 
+	SCE_DBG_LOG_DEBUG("Doesn't found license\n");
+
 	if (res >= 0) {
 		res = sceIoRemove(path);
 		if (res < 0) {
+			SCE_DBG_LOG_ERROR("sceIoRemove(): 0x%08X\n", res);
 			return res;
 		}
 	}
@@ -241,6 +247,7 @@ int restore_license(const char *restore_temp_path) {
 	for (int i = 0; i < 3; i++) {
 		res = _sceNpDrmGetRifName(rif_name, restore_aid_list[i]);
 		if (res < 0) {
+			SCE_DBG_LOG_ERROR("_sceNpDrmGetRifName(): 0x%08X\n", res);
 			return res;
 		}
 
@@ -256,7 +263,12 @@ int restore_license(const char *restore_temp_path) {
 				SCE_DBG_LOG_ERROR("sceNpDrmGetRifInfo(): 0x%08X\n", res);
 			}
 		}
+		else {
+			SCE_DBG_LOG_ERROR("read_file(%s): 0x%08X\n", rif_path, res);
+		}
 	}
+
+	SCE_DBG_LOG_ERROR("Doesn't found license\n");
 
 	return -1;
 }
@@ -668,7 +680,17 @@ int do_restore(const char *path) {
 
 	if (res >= 0) {
 		res = do_restore_savedata_core(restore_temp_path, titleid);
+		if (res < 0) {
+			SCE_DBG_LOG_ERROR("do_restore_savedata_core(): 0x%08X\n", res);
+			goto end_from_umount;
+		}
 	}
+	else {
+		SCE_DBG_LOG_ERROR("do_restore_core(): 0x%08X\n", res);
+		goto end_from_umount;
+	}
+
+	res = 0;
 
 end_from_umount:
 	vshIoUmount(0xA00, 0, 0, 0);
@@ -678,7 +700,7 @@ end_from_umount:
 	if (is_compressed)
 		sceIoRemove(temp_path);
 
-	return 0;
+	return res;
 }
 
 int do_backup(const char *path, const char *titleid, int savedata_only, int use_compression) {

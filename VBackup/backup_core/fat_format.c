@@ -23,7 +23,7 @@ typedef struct SceFatFormatParam { // size is 0x30-bytes
 	SceUInt32 sce_fs_type;
 } SceFatFormatParam;
 
-int(*sceAppMgrExecFsFatFormat)(SceFatFormatParam *pParam);
+int (* sceBackupRestoreExecFsFatFormat)(SceFatFormatParam *pParam);
 
 /*
  * Execute fat format
@@ -65,7 +65,7 @@ int sceFatfsExecFormatInternal(const char *s, void *pWorkingBuffer, SceSize work
 		}
 	}
 
-	res = sceAppMgrExecFsFatFormat(&ff_param);
+	res = sceBackupRestoreExecFsFatFormat(&ff_param);
 	if(res >= 0)
 		res = sceIoSync(s, 0);
 
@@ -110,9 +110,9 @@ int create_backup_image(const char *path, SceUInt64 size){
 	res = sceIoChstatByFd(fd, &stat, SCE_CST_SIZE);
 	sceIoClose(fd);
 
-	if(stat.st_size >= 0x100000000LL){
+	if(stat.st_size >= 0x20000000LL){ // 512MiB
 		ftype = SCE_FAT_FORMAT_TYPE_EXFAT;
-	}else if(stat.st_size >= 0x1000000LL){
+	}else if(stat.st_size >= 0x1000000LL){ // 16MiB
 		ftype = SCE_FAT_FORMAT_TYPE_FAT16;
 	}else{
 		ftype = SCE_FAT_FORMAT_TYPE_FAT12;
@@ -150,7 +150,7 @@ int fat_format_init(void){
 	else
 		offset = 0x1A60D;
 
-	sceAppMgrExecFsFatFormat = (void *)(module_info.segments[0].vaddr + offset);
+	sceBackupRestoreExecFsFatFormat = (void *)(module_info.segments[0].vaddr + offset);
 
 	return 0;
 }
