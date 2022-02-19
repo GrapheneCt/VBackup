@@ -96,7 +96,6 @@ SceInt32 menu::backup::BackupThread::BREventCallback(SceInt32 event, SceInt32 st
 		break;
 	case BR_EVENT_NOTICE_CONT_COMPRESS:
 		if (status == BR_STATUS_BEGIN) {
-			button->Disable(SCE_TRUE);
 			text16 = VBUtils::GetString("msg_compressing");
 		}
 		break;

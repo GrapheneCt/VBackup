@@ -858,6 +858,8 @@ void set_core_callback(BREventCallback cb)
 
 void set_interrupt()
 {
+	sce_paf_gzip_interrupt();
+
 	int16_t interrupted = 1;
 
 	sceAtomicStore16AcqRel(&s_executionInterrupt, 1);

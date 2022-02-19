@@ -12,6 +12,8 @@ int sce_paf_gzip_compress(const char *src, const char *dst);
 
 int sce_paf_gzip_decompress(const char *src, const char *dst);
 
+void sce_paf_gzip_interrupt();
+
 #ifdef __cplusplus
 }
 #endif

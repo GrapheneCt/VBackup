@@ -1,5 +1,6 @@
 
 #include <kernel.h>
+#include <sce_atomic.h>
 #include <vshbridge.h>
 #include <paf/stdc.h>
 #include "paf_gzip.h"
@@ -18,7 +19,7 @@
 #undef inflate
 #undef inflateEnd
 
-#define CHUNK_SIZE SCE_KERNEL_16KiB
+#define CHUNK_SIZE SCE_KERNEL_256KiB
 #define LEVEL Z_DEFAULT_COMPRESSION
 
 int sceKernelGetModuleInfoByAddr(SceUIntPtr addr, SceKernelModuleInfo *info);
@@ -39,6 +40,8 @@ int(*deflateEnd)(z_streamp strm);
 int(*inflate)(z_streamp strm, int flush);
 
 int(*inflateEnd)(z_streamp strm);
+
+static int16_t s_executionInterrupt = 0;
 
 static voidpf sce_paf_gzip_zalloc(voidpf opaque, uInt items, uInt size)
 {
@@ -101,6 +104,8 @@ int sce_paf_gzip_compress(const char *src, const char *dst)
 	FILE *source = NULL;
 	FILE *dest = NULL;
 
+	sceAtomicStore16AcqRel(&s_executionInterrupt, 0);
+
 	/* allocate deflate state */
 	strm.zalloc = sce_paf_gzip_zalloc;
 	strm.zfree = sce_paf_gzip_zfree;
@@ -135,6 +140,13 @@ int sce_paf_gzip_compress(const char *src, const char *dst)
 
 	/* compress until end of file */
 	do {
+
+		if (sceAtomicLoad16AcqRel(&s_executionInterrupt)) {
+			sceAtomicStore16AcqRel(&s_executionInterrupt, 0);
+			ret = SCE_ERROR_ERRNO_EINTR;
+			goto error_ret;
+		}
+
 		strm.avail_in = sce_paf_fread(in, 1, CHUNK_SIZE, source);
 		if (sce_paf_ferror(source)) {
 			ret = Z_ERRNO;
@@ -217,6 +229,8 @@ int sce_paf_gzip_decompress(const char *src, const char *dst)
 	FILE *source = NULL;
 	FILE *dest = NULL;
 
+	sceAtomicStore16AcqRel(&s_executionInterrupt, 0);
+
 	/* allocate inflate state */
 	strm.zalloc = sce_paf_gzip_zalloc;
 	strm.zfree = sce_paf_gzip_zfree;
@@ -253,6 +267,13 @@ int sce_paf_gzip_decompress(const char *src, const char *dst)
 
 	/* decompress until deflate stream ends or end of file */
 	do {
+
+		if (sceAtomicLoad16AcqRel(&s_executionInterrupt)) {
+			sceAtomicStore16AcqRel(&s_executionInterrupt, 0);
+			ret = SCE_ERROR_ERRNO_EINTR;
+			goto error_ret;
+		}
+
 		strm.avail_in = sce_paf_fread(in, 1, CHUNK_SIZE, source);
 		if (sce_paf_ferror(source)) {
 			ret = Z_ERRNO;
@@ -315,4 +336,18 @@ error_ret:
 		sce_paf_free(out);
 
 	return ret;
+}
+
+void sce_paf_gzip_interrupt()
+{
+	int16_t interrupted = 1;
+
+	sceAtomicStore16AcqRel(&s_executionInterrupt, 1);
+
+	/*while (1) {
+		interrupted = sceAtomicLoad16AcqRel(&s_executionInterrupt);
+		sceKernelDelayThread(1000);
+		if (!interrupted)
+			break;
+	}*/
 }
