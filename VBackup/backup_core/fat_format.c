@@ -57,11 +57,11 @@ int sceFatfsExecFormatInternal(const char *s, void *pWorkingBuffer, SceSize work
 
 	if(bytePerCluster == 0){
 		if(sce_fs_type == SCE_FAT_FORMAT_TYPE_EXFAT){
-			ff_param.bytePerCluster = 0x20000;
+			ff_param.bytePerCluster = SCE_KERNEL_128KiB;
 		}else if(sce_fs_type == SCE_FAT_FORMAT_TYPE_FAT32){
-			ff_param.bytePerCluster = 0x8000;
+			ff_param.bytePerCluster = SCE_KERNEL_32KiB;
 		}else if(sce_fs_type == SCE_FAT_FORMAT_TYPE_FAT16 || sce_fs_type == SCE_FAT_FORMAT_TYPE_FAT12){
-			ff_param.bytePerCluster = 0x1000;
+			ff_param.bytePerCluster = SCE_KERNEL_4KiB;
 		}
 	}
 
@@ -110,9 +110,9 @@ int create_backup_image(const char *path, SceUInt64 size){
 	res = sceIoChstatByFd(fd, &stat, SCE_CST_SIZE);
 	sceIoClose(fd);
 
-	if(stat.st_size >= 0x20000000LL){ // 512MiB
+	if(stat.st_size >= SCE_KERNEL_512MiB){
 		ftype = SCE_FAT_FORMAT_TYPE_EXFAT;
-	}else if(stat.st_size >= 0x1000000LL){ // 16MiB
+	}else if(stat.st_size >= SCE_KERNEL_16MiB){
 		ftype = SCE_FAT_FORMAT_TYPE_FAT16;
 	}else{
 		ftype = SCE_FAT_FORMAT_TYPE_FAT12;

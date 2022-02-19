@@ -408,7 +408,12 @@ menu::backup::Page::Page(SceBool savedataOnly)
 	if (commonWidget->animationStatus & 0x80)
 		commonWidget->animationStatus &= ~0x80;
 
-	backupThread = new BackupThread(SCE_KERNEL_INDIVIDUAL_QUEUE_HIGHEST_PRIORITY + 10, SCE_KERNEL_256KiB, "VB::BackupWorker");
+	thread::Thread::Opt opt;
+	opt.attr = 0;
+	opt.cpuAffinityMask = SCE_KERNEL_CPU_MASK_USER_2;
+	opt.stackMemoryType = SCE_KERNEL_MEMBLOCK_TYPE_USER_RW;
+
+	backupThread = new BackupThread(SCE_KERNEL_INDIVIDUAL_QUEUE_HIGHEST_PRIORITY, SCE_KERNEL_256KiB, "VB::BackupWorker", &opt);
 	backupThread->savedataOnly = savedataOnly;
 	backupThread->Start();
 }
