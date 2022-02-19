@@ -140,6 +140,7 @@ SceVoid pluginLoadCB(Plugin *plugin)
 	ui::Widget *backButton = g_rootPage->GetChildByHash(&searchParam, 0);
 	auto backButtonCB = new menu::list::BackButtonCB();
 	backButton->RegisterEventCallback(ui::Widget::EventMain_Decide, backButtonCB, 0);
+	backButton->PlayAnimationReverse(0.0f, ui::Widget::Animation_Reset);
 
 	sceShellUtilUnlock(SCE_SHELL_UTIL_LOCK_TYPE_PS_BTN);
 

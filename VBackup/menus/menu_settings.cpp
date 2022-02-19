@@ -90,7 +90,7 @@ menu::settings::Settings::Settings()
 	*verinfo = L"RELEASE ";
 #endif
 	*verinfo += WIDE(__DATE__);
-	*verinfo += L" v 0.98 core rev. 4";
+	*verinfo += L" v 0.99 core rev. 5";
 	s_verinfo = (SceWChar16 *)verinfo->data;
 
 	s_settingsInstance = this;
