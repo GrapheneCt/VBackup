@@ -228,6 +228,7 @@ int restore_license_helper(char *rif_path, int rif_path_size, const char *rif_na
 		res = sceNpDrmGetRifInfo(license, sizeof(*license), 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 		if (res < 0) {
 			SCE_DBG_LOG_ERROR("sceNpDrmGetRifInfo(): 0x%08X\n", res);
+			SCE_DBG_LOG_ERROR("rif_name: %s\n", rif_name);
 		}
 	}
 	else {
@@ -267,6 +268,8 @@ int restore_license(const char *restore_temp_path) {
 	// Find to account license file.
 	res = sceRegMgrGetKeyBin("/CONFIG/NP/", "account_id", &account_id, sizeof(account_id));
 	if (res >= 0) {
+		SCE_DBG_LOG_DEBUG("Current account ID: 0x%016llX\n", account_id);
+
 		res = _sceNpDrmGetRifName(rif_name, account_id);
 		if (res < 0) {
 			SCE_DBG_LOG_ERROR("_sceNpDrmGetRifName(): 0x%08X\n", res);
