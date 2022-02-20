@@ -526,6 +526,7 @@ int do_backup_core(const char *path, const char *titleid, FSListEntry *pAppEnt, 
 
 	res = sceIoMkdir(backup_path, 0666);
 	if (res < 0) {
+		SCE_DBG_LOG_ERROR("sceIoMkdir(%s): 0x%08X\n", backup_path, res);
 		return res;
 	}
 
@@ -609,7 +610,7 @@ int do_backup_core(const char *path, const char *titleid, FSListEntry *pAppEnt, 
 	sce_paf_snprintf(temp_path, sizeof(temp_path), "%s/sce_sys", backup_path);
 	res = sceIoMkdir(temp_path, 0666);
 	if (res < 0) {
-		SCE_DBG_LOG_ERROR("sceIoMkdir(): 0x%08X\n", res);
+		SCE_DBG_LOG_ERROR("sceIoMkdir(%s): 0x%08X\n", temp_path, res);
 		return res;
 	}
 
