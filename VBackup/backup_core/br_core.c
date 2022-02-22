@@ -751,28 +751,28 @@ int do_backup(const char *path, const char *titleid, int savedata_only, int use_
 	do {
 		if (!savedata_only) {
 			sce_paf_snprintf(temp_path, sizeof(temp_path), "ux0:/app/%s", titleid);
-			res = fs_list_init(&(context->pAppEnt), temp_path, NULL, NULL);
+			res = fs_list_init(&(context.pAppEnt), temp_path, NULL, NULL);
 			if (res < 0) { // Application is not installed.
 				SCE_DBG_LOG_ERROR("Application %s is not installed\n", titleid);
 				break;
 			}
 
 			sce_paf_snprintf(temp_path, sizeof(temp_path), "ux0:/appmeta/%s", titleid);
-			res = fs_list_init(&(context->pAppMetaEnt), temp_path, NULL, NULL);
+			res = fs_list_init(&(context.pAppMetaEnt), temp_path, NULL, NULL);
 			if (res < 0) {
 				SCE_DBG_LOG_ERROR("appmeta file list: 0x%X\n", res);
 				break;
 			}
 
 			sce_paf_snprintf(temp_path, sizeof(temp_path), "ux0:/license/app/%s", titleid);
-			res = fs_list_init(&(context->pLicenseEnt), temp_path, NULL, NULL);
+			res = fs_list_init(&(context.pLicenseEnt), temp_path, NULL, NULL);
 			if (res < 0) {
 				SCE_DBG_LOG_ERROR("license file list: 0x%X\n", res);
 				break;
 			}
 
 			sce_paf_snprintf(temp_path, sizeof(temp_path), "ux0:/patch/%s", titleid);
-			fs_list_init(&(context->pPatchEnt), temp_path, NULL, NULL);
+			fs_list_init(&(context.pPatchEnt), temp_path, NULL, NULL);
 		}
 
 		res = sceRegMgrGetKeyInt("/CONFIG/NP2/", "current_account2", &current_account2);
@@ -782,18 +782,18 @@ int do_backup(const char *path, const char *titleid, int savedata_only, int use_
 		}
 
 		sce_paf_snprintf(temp_path, sizeof(temp_path), "ux0:/user/%02d/savedata/%s", current_account2, titleid);
-		fs_list_init(&(context->pSavedataEnt), temp_path, NULL, NULL);
+		fs_list_init(&(context.pSavedataEnt), temp_path, NULL, NULL);
 
 		res = do_backup_core(path, titleid, &context);
 	} while (0);
 
 	if (!savedata_only) {
-		fs_list_fini(context->pPatchEnt);
-		fs_list_fini(context->pLicenseEnt);
-		fs_list_fini(context->pAppMetaEnt);
-		fs_list_fini(context->pAppEnt);
+		fs_list_fini(context.pPatchEnt);
+		fs_list_fini(context.pLicenseEnt);
+		fs_list_fini(context.pAppMetaEnt);
+		fs_list_fini(context.pAppEnt);
 	}
-	fs_list_fini(context->pSavedataEnt);
+	fs_list_fini(context.pSavedataEnt);
 
 	if (res != 0)
 		return res;
