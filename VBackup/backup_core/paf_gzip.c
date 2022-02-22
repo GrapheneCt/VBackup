@@ -57,32 +57,36 @@ int sce_paf_gzip_init(void) {
 
 	int res;
 	SceKernelModuleInfo module_info;
+	ScePVoid text;
+	SceSize text_size;
 
 	res = sceKernelGetModuleInfoByAddr(&_ZN3paf6thread17s_mainThreadMutexE, &module_info);
 	if (res < 0)
 		return res;
 
-	res = vshSblAimgrIsTool();
-	if (res < 0)
-		return res;
+	text      = module_info.segments[0].vaddr;
+	text_size = module_info.segments[0].memsz;
 
-	if (res) {
-		deflateInit2_ = (void *)(module_info.segments[0].vaddr + 0x17DC11);
-		deflate = (void *)(module_info.segments[0].vaddr + 0x17E27F);
-		deflateEnd = (void *)(module_info.segments[0].vaddr + 0x17DB8D);
+	if (0x3019B8 == text_size) { // Tool
+		deflateInit2_ = (void *)(text + 0x17DC11);
+		deflate       = (void *)(text + 0x17E27F);
+		deflateEnd    = (void *)(text + 0x17DB8D);
 
-		inflateInit2_ = (void *)(module_info.segments[0].vaddr + 0x17F48F);
-		inflate = (void *)(module_info.segments[0].vaddr + 0x17F625);
-		inflateEnd = (void *)(module_info.segments[0].vaddr + 0x180A2B);
+		inflateInit2_ = (void *)(text + 0x17F48F);
+		inflate       = (void *)(text + 0x17F625);
+		inflateEnd    = (void *)(text + 0x180A2B);
+	}
+	else if (0x300D00 == text_size) { // CEX/DEX
+		deflateInit2_ = (void *)(text + 0x17D05D);
+		deflate       = (void *)(text + 0x17D6CB);
+		deflateEnd    = (void *)(text + 0x17CFD9);
+
+		inflateInit2_ = (void *)(text + 0x17E8DB);
+		inflate       = (void *)(text + 0x17EA71);
+		inflateEnd    = (void *)(text + 0x17FE77);
 	}
 	else {
-		deflateInit2_ = (void *)(module_info.segments[0].vaddr + 0x17D05D);
-		deflate = (void *)(module_info.segments[0].vaddr + 0x17D6CB);
-		deflateEnd = (void *)(module_info.segments[0].vaddr + 0x17CFD9);
-
-		inflateInit2_ = (void *)(module_info.segments[0].vaddr + 0x17E8DB);
-		inflate = (void *)(module_info.segments[0].vaddr + 0x17EA71);
-		inflateEnd = (void *)(module_info.segments[0].vaddr + 0x17FE77);
+		return -1;
 	}
 
 	return 0;

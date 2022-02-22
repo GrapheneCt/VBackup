@@ -164,6 +164,8 @@ SceVoid pluginLoadCB(Plugin *plugin)
 
 int main(SceSize args, void *argp)
 {
+	int res;
+
 	sceShellUtilInitEvents(0);
 	sceShellUtilLock(SCE_SHELL_UTIL_LOCK_TYPE_PS_BTN);
 
@@ -200,12 +202,35 @@ int main(SceSize args, void *argp)
 
 	VBUtils::Init();
 
-	sceSysmoduleLoadModuleInternal(SCE_SYSMODULE_INTERNAL_BXCE);
-	sceSysmoduleLoadModuleInternal(SCE_SYSMODULE_INTERNAL_INI_FILE_PROCESSOR);
-	sceSysmoduleLoadModuleInternal(SCE_SYSMODULE_INTERNAL_COMMON_GUI_DIALOG);
-	sceSysmoduleLoadModuleInternal(SCE_SYSMODULE_INTERNAL_PROMOTER_UTIL);
-	fat_format_init();
-	sce_paf_gzip_init();
+	res = sceSysmoduleLoadModuleInternal(SCE_SYSMODULE_INTERNAL_BXCE);
+	if (res < 0) {
+		SCE_DBG_LOG_ERROR("sceSysmoduleLoadModuleInternal(%s): 0x%X\n", "SCE_SYSMODULE_INTERNAL_BXCE", res);
+	}
+
+	res = sceSysmoduleLoadModuleInternal(SCE_SYSMODULE_INTERNAL_INI_FILE_PROCESSOR);
+	if (res < 0) {
+		SCE_DBG_LOG_ERROR("sceSysmoduleLoadModuleInternal(%s): 0x%X\n", "SCE_SYSMODULE_INTERNAL_INI_FILE_PROCESSOR", res);
+	}
+
+	res = sceSysmoduleLoadModuleInternal(SCE_SYSMODULE_INTERNAL_COMMON_GUI_DIALOG);
+	if (res < 0) {
+		SCE_DBG_LOG_ERROR("sceSysmoduleLoadModuleInternal(%s): 0x%X\n", "SCE_SYSMODULE_INTERNAL_COMMON_GUI_DIALOG", res);
+	}
+
+	res = sceSysmoduleLoadModuleInternal(SCE_SYSMODULE_INTERNAL_PROMOTER_UTIL);
+	if (res < 0) {
+		SCE_DBG_LOG_ERROR("sceSysmoduleLoadModuleInternal(%s): 0x%X\n", "SCE_SYSMODULE_INTERNAL_PROMOTER_UTIL", res);
+	}
+
+	res = fat_format_init();
+	if (res < 0) {
+		SCE_DBG_LOG_ERROR("fat_format_init(): 0x%X\n", res);
+	}
+
+	res = sce_paf_gzip_init();
+	if (res < 0) {
+		SCE_DBG_LOG_ERROR("sce_paf_gzip_init(): 0x%X\n", res);
+	}
 
 	fw->EnterRenderingLoop();
 

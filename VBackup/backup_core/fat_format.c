@@ -135,8 +135,9 @@ int fat_format_init(void){
 
 	int res;
 	SceUID modid = SCE_UID_INVALID_UID;
-	SceUInt32 offset = 0xDEADBEEF;
 	SceKernelModuleInfo module_info;
+	ScePVoid text;
+	SceSize text_size;
 
 	modid = sceKernelLoadStartModule("vs0:/vsh/common/backup_restore.suprx", 0, NULL, 0, NULL, NULL);
 	if(modid < 0)
@@ -149,12 +150,18 @@ int fat_format_init(void){
 	if(res < 0)
 		return res;
 
-	if (vshSblAimgrIsCEX())
-		offset = 0x19279;
-	else
-		offset = 0x1A60D;
+	text      = module_info.segments[0].vaddr;
+	text_size = module_info.segments[0].memsz;
 
-	sceBackupRestoreExecFsFatFormat = (void *)(module_info.segments[0].vaddr + offset);
+	if (0x27858 == text_size) { // CEX
+		sceBackupRestoreExecFsFatFormat = (void *)(text + 0x19279);
+	}
+	else if (0x28E88 == text_size) { // DEX/Tool
+		sceBackupRestoreExecFsFatFormat = (void *)(text + 0x1A60D);
+	}
+	else {
+		return -1;
+	}
 
 	return 0;
 }
