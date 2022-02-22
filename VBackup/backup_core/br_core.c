@@ -382,6 +382,62 @@ int do_restore_core(const char *restore_temp_path) {
 	return res;
 }
 
+int do_restore_patch_core(const char *restore_temp_path) {
+
+	int res;
+	SceIoStat stat;
+	SceUInt32 nFile = 0;
+	FSListEntry *pEnt = NULL;
+	char path[0x80];
+
+	res = sceIoGetstat("grw0:/patch", &stat);
+	if (res < 0) {
+		return 0; // Not have update patch.
+	}
+
+	sce_paf_snprintf(path, sizeof(path), "%s/patch", restore_temp_path);
+
+	res = sceIoMkdir(path, 0777);
+	if (res < 0) {
+		return res;
+	}
+
+	res = fs_list_init(&pEnt, "grw0:/patch", NULL, &nFile);
+	if (res < 0) {
+		return res;
+	}
+
+	if (BR_event_callback != NULL)
+		BR_event_callback(BR_EVENT_NOTICE_CONT_NUMBER, BR_STATUS_NONE, (SceInt64)nFile, NULL, NULL);
+
+	res = fs_list_copy(pEnt, path, BR_event_callback, NULL);
+
+	fs_list_fini(pEnt);
+	pEnt = NULL;
+
+	if (res < 0) {
+		SCE_DBG_LOG_ERROR("fs_list_copy(): 0x%08X\n", res);
+		return res;
+	}
+
+	if (BR_event_callback != NULL)
+		BR_event_callback(BR_EVENT_NOTICE_CONT_PROMOTE, BR_STATUS_BEGIN, 0, NULL, NULL);
+
+	scePromoterUtilityInit();
+
+	res = scePromoterUtilityPromotePkg(path, 1);
+	if (res < 0) {
+		SCE_DBG_LOG_ERROR("scePromoterUtilityPromotePkg(): 0x%08X\n", res);
+	}
+
+	scePromoterUtilityExit();
+
+	if (BR_event_callback != NULL)
+		BR_event_callback(BR_EVENT_NOTICE_CONT_PROMOTE, BR_STATUS_END, 0, NULL, NULL);
+
+	return res;
+}
+
 int do_restore_appmeta_core(const char *restore_temp_path, const char *titleid) {
 
 	int res;
@@ -514,10 +570,20 @@ int do_backup_core_helper(const char *dst, FSListEntry *pEnt){
 	return 0;
 }
 
+typedef struct BackupContext {
+	FSListEntry *pAppEnt;
+	FSListEntry *pAppMetaEnt;
+	FSListEntry *pLicenseEnt;
+	FSListEntry *pSavedataEnt;
+	FSListEntry *pPatchEnt;
+	int savedata_only;
+	int use_compression;
+} BackupContext;
+
 /*
  * path - devX:/vbackup
  */
-int do_backup_core(const char *path, const char *titleid, FSListEntry *pAppEnt, FSListEntry *pAppMetaEnt, FSListEntry *pLicenseEnt, FSListEntry *pSavedataEnt, int savedata_only, int use_compression) {
+int do_backup_core(const char *path, const char *titleid, const BackupContext *pContext) {
 
 	int res;
 	char temp_path[0x100], temp_path2[0x100], backup_path[0x80];
@@ -535,14 +601,16 @@ int do_backup_core(const char *path, const char *titleid, FSListEntry *pAppEnt, 
 	SceUInt64 devMaxSize = 0LL;
 	SceUInt64 devFreeSize = 0LL;
 
-	if (pAppEnt)
-		fs_list_get_full_size(pAppEnt, &size, &nFile, &nDir);
-	if (pAppMetaEnt)
-		fs_list_get_full_size(pAppMetaEnt, &size, &nFile, &nDir);
-	if (pLicenseEnt)
-		fs_list_get_full_size(pLicenseEnt, &size, &nFile, &nDir);
-	if (pSavedataEnt)
-		fs_list_get_full_size(pSavedataEnt, &size, &nFile, &nDir);
+	if (pContext->pAppEnt)
+		fs_list_get_full_size(pContext->pAppEnt, &size, &nFile, &nDir);
+	if (pContext->pAppMetaEnt)
+		fs_list_get_full_size(pContext->pAppMetaEnt, &size, &nFile, &nDir);
+	if (pContext->pLicenseEnt)
+		fs_list_get_full_size(pContext->pLicenseEnt, &size, &nFile, &nDir);
+	if (pContext->pPatchEnt)
+		fs_list_get_full_size(pContext->pPatchEnt, &size, &nFile, &nDir);
+	if (pContext->pSavedataEnt)
+		fs_list_get_full_size(pContext->pSavedataEnt, &size, &nFile, &nDir);
 
 	char *devEnd = sce_paf_strchr(path, ':');
 	int len = devEnd - path + 1;
@@ -555,7 +623,7 @@ int do_backup_core(const char *path, const char *titleid, FSListEntry *pAppEnt, 
 
 	res = sceAppMgrGetDevInfo(device, &devMaxSize, &devFreeSize);
 	if (res == 0) {
-		if (use_compression) {
+		if (pContext->use_compression) {
 			if ((size * 2) > devFreeSize)
 				return SCE_ERROR_ERRNO_ENOMEM;
 		}
@@ -583,25 +651,31 @@ int do_backup_core(const char *path, const char *titleid, FSListEntry *pAppEnt, 
 		return res;
 	}
 
-	res = do_backup_core_helper("grw0:app", pAppEnt);
+	res = do_backup_core_helper("grw0:app", pContext->pAppEnt);
 	if (res < 0) {
 		SCE_DBG_LOG_ERROR("do_backup_core_helper(): 0x%08X\n", res);
 		return res;
 	}
 
-	res = do_backup_core_helper("grw0:appmeta", pAppMetaEnt);
+	res = do_backup_core_helper("grw0:appmeta", pContext->pAppMetaEnt);
 	if (res < 0) {
 		SCE_DBG_LOG_ERROR("do_backup_core_helper(): 0x%08X\n", res);
 		return res;
 	}
 
-	res = do_backup_core_helper("grw0:license", pLicenseEnt);
+	res = do_backup_core_helper("grw0:license", pContext->pLicenseEnt);
 	if (res < 0) {
 		SCE_DBG_LOG_ERROR("do_backup_core_helper(): 0x%08X\n", res);
 		return res;
 	}
 
-	res = do_backup_core_helper("grw0:savedata", pSavedataEnt);
+	res = do_backup_core_helper("grw0:patch", pContext->pPatchEnt);
+	if (res < 0) {
+		SCE_DBG_LOG_ERROR("do_backup_core_helper(): 0x%08X\n", res);
+		return res;
+	}
+
+	res = do_backup_core_helper("grw0:savedata", pContext->pSavedataEnt);
 	if (res < 0) {
 		SCE_DBG_LOG_ERROR("do_backup_core_helper(): 0x%08X\n", res);
 		return res;
@@ -633,7 +707,7 @@ int do_backup_core(const char *path, const char *titleid, FSListEntry *pAppEnt, 
 		return res;
 	}
 
-	if (savedata_only) {
+	if (pContext->savedata_only) {
 		sce_paf_snprintf(temp_path, sizeof(temp_path), "%s/savedata_only.flag", backup_path);
 		res = write_file(temp_path, temp_path, 1);
 		if (res < 0) {
@@ -653,6 +727,90 @@ int do_backup_core(const char *path, const char *titleid, FSListEntry *pAppEnt, 
 }
 
 /* MAIN FUNCS */
+
+int do_backup(const char *path, const char *titleid, int savedata_only, int use_compression) {
+
+	int res, current_account2;
+	char temp_path[0x80];
+	BackupContext context;
+	// FSListEntry *pAppEnt = NULL, *pAppMetaEnt = NULL, *pLicenseEnt = NULL, *pSavedataEnt = NULL, *pPatchEnt = NULL;
+
+	sce_paf_memset(&context, 0, sizeof(context));
+
+	context.savedata_only   = savedata_only;
+	context.use_compression = use_compression;
+
+	do {
+		if (!savedata_only) {
+			sce_paf_snprintf(temp_path, sizeof(temp_path), "ux0:/app/%s", titleid);
+			res = fs_list_init(&(context->pAppEnt), temp_path, NULL, NULL);
+			if (res < 0) { // Application is not installed.
+				SCE_DBG_LOG_ERROR("Application %s is not installed\n", titleid);
+				break;
+			}
+
+			sce_paf_snprintf(temp_path, sizeof(temp_path), "ux0:/appmeta/%s", titleid);
+			res = fs_list_init(&(context->pAppMetaEnt), temp_path, NULL, NULL);
+			if (res < 0) {
+				SCE_DBG_LOG_ERROR("appmeta file list: 0x%X\n", res);
+				break;
+			}
+
+			sce_paf_snprintf(temp_path, sizeof(temp_path), "ux0:/license/app/%s", titleid);
+			res = fs_list_init(&(context->pLicenseEnt), temp_path, NULL, NULL);
+			if (res < 0) {
+				SCE_DBG_LOG_ERROR("license file list: 0x%X\n", res);
+				break;
+			}
+
+			sce_paf_snprintf(temp_path, sizeof(temp_path), "ux0:/patch/%s", titleid);
+			fs_list_init(&(context->pPatchEnt), temp_path, NULL, NULL);
+		}
+
+		res = sceRegMgrGetKeyInt("/CONFIG/NP2/", "current_account2", &current_account2);
+		if (res < 0) {
+			SCE_DBG_LOG_ERROR("sceRegMgrGetKeyInt(): 0x%08X\n", res);
+			break;
+		}
+
+		sce_paf_snprintf(temp_path, sizeof(temp_path), "ux0:/user/%02d/savedata/%s", current_account2, titleid);
+		fs_list_init(&(context->pSavedataEnt), temp_path, NULL, NULL);
+
+		res = do_backup_core(path, titleid, &context);
+	} while (0);
+
+	if (!savedata_only) {
+		fs_list_fini(context->pPatchEnt);
+		fs_list_fini(context->pLicenseEnt);
+		fs_list_fini(context->pAppMetaEnt);
+		fs_list_fini(context->pAppEnt);
+	}
+	fs_list_fini(context->pSavedataEnt);
+
+	if (res != 0)
+		return res;
+
+	if (use_compression) {
+		SceIoStat stat;
+		char compressed_path[0x80];
+
+		sce_paf_snprintf(temp_path, sizeof(temp_path), "%s/%s/appcont.bin", path, titleid);
+
+		sceIoGetstat(temp_path, &stat);
+
+		if (stat.st_size < 4294967296) {
+			if (BR_event_callback != NULL)
+				BR_event_callback(BR_EVENT_NOTICE_CONT_COMPRESS, BR_STATUS_BEGIN, 0, NULL, NULL);
+			sce_paf_snprintf(compressed_path, sizeof(compressed_path), "%s/%s/appcont.bin.gz", path, titleid);
+			res = sce_paf_gzip_compress(temp_path, compressed_path);
+			sceIoRemove(temp_path);
+			if (BR_event_callback != NULL)
+				BR_event_callback(BR_EVENT_NOTICE_CONT_COMPRESS, BR_STATUS_END, 0, NULL, NULL);
+		}
+	}
+
+	return res;
+}
 
 int do_restore(const char *path) {
 
@@ -716,129 +874,64 @@ int do_restore(const char *path) {
 		return res;
 	}
 
-	res = read_file("grw0:titleid.bin", titleid, sizeof(titleid));
-	if (res < 0) {
-		goto end_from_umount;
-	}
+	do {
+		res = read_file("grw0:titleid.bin", titleid, sizeof(titleid));
+		if (res < 0) {
+			SCE_DBG_LOG_ERROR("read_file(): 0x%08X\n", res);
+			break;
+		}
 
-	if (res != sizeof(titleid) || 9 != sce_paf_strlen(titleid)) {
-		SCE_DBG_LOG_ERROR("Invalid titleid file\n");
-		res = -1;
-		goto end_from_umount;
-	}
+		if (res != sizeof(titleid) || 9 != sce_paf_strlen(titleid)) {
+			SCE_DBG_LOG_ERROR("Invalid titleid file\n");
+			res = -1;
+			break;
+		}
 
-	res = sceIoMkdir(restore_temp_path, 0777);
-	if (res < 0) {
-		SCE_DBG_LOG_ERROR("sceIoMkdir(): 0x%08X\n", res);
-		goto end_from_umount;
-	}
+		res = sceIoMkdir(restore_temp_path, 0777);
+		if (res < 0) {
+			SCE_DBG_LOG_ERROR("sceIoMkdir(): 0x%08X\n", res);
+			break;
+		}
 
-	SCE_DBG_LOG_TRACE("Restore titleid: %s, savedata only: %d\n", titleid, savedata_only);
+		SCE_DBG_LOG_TRACE("Restore titleid: %s, savedata only: %d\n", titleid, savedata_only);
 
-	if (!savedata_only)
-		res = do_restore_core(restore_temp_path);
+		if (!savedata_only) {
+			res = do_restore_core(restore_temp_path);
+			if (res < 0) {
+				SCE_DBG_LOG_ERROR("do_restore_core(): 0x%08X\n", res);
+				break;
+			}
 
-	/*
-	if (res >= 0) {
-		res = do_restore_appmeta_core(restore_temp_path, titleid);
-	}
-	*/
+			res = do_restore_patch_core(restore_temp_path);
+			if (res < 0) {
+				SCE_DBG_LOG_ERROR("do_restore_patch_core(): 0x%08X\n", res);
+				break;
+			}
 
-	if (res >= 0) {
+			/*
+			res = do_restore_appmeta_core(restore_temp_path, titleid);
+			if (res < 0) {
+				SCE_DBG_LOG_ERROR("do_restore_appmeta_core(): 0x%08X\n", res);
+				break;
+			}
+			*/
+		}
+
 		res = do_restore_savedata_core(restore_temp_path, titleid);
 		if (res < 0) {
 			SCE_DBG_LOG_ERROR("do_restore_savedata_core(): 0x%08X\n", res);
-			goto end_from_umount;
+			break;
 		}
-	}
-	else {
-		SCE_DBG_LOG_ERROR("do_restore_core(): 0x%08X\n", res);
-		goto end_from_umount;
-	}
 
-	res = 0;
+		res = 0;
+	} while(0);
 
-end_from_umount:
 	vshIoUmount(0xA00, 0, 0, 0);
 
 	fs_remove(restore_temp_path);
 
 	if (is_compressed)
 		sceIoRemove(temp_path);
-
-	return res;
-}
-
-int do_backup(const char *path, const char *titleid, int savedata_only, int use_compression) {
-
-	int res, current_account2;
-	char temp_path[0x80];
-	FSListEntry *pAppEnt = NULL, *pAppMetaEnt = NULL, *pLicenseEnt = NULL, *pSavedataEnt = NULL;
-
-	do {
-		if (!savedata_only) {
-			sce_paf_snprintf(temp_path, sizeof(temp_path), "ux0:/app/%s", titleid);
-			res = fs_list_init(&pAppEnt, temp_path, NULL, NULL);
-			if (res < 0) { // Application is not installed.
-				SCE_DBG_LOG_ERROR("Application %s is not installed\n", titleid);
-				break;
-			}
-
-			sce_paf_snprintf(temp_path, sizeof(temp_path), "ux0:/appmeta/%s", titleid);
-			res = fs_list_init(&pAppMetaEnt, temp_path, NULL, NULL);
-			if (res < 0) {
-				SCE_DBG_LOG_ERROR("appmeta file list: 0x%X\n", res);
-				break;
-			}
-
-			sce_paf_snprintf(temp_path, sizeof(temp_path), "ux0:/license/app/%s", titleid);
-			res = fs_list_init(&pLicenseEnt, temp_path, NULL, NULL);
-			if (res < 0) {
-				SCE_DBG_LOG_ERROR("license file list: 0x%X\n", res);
-				break;
-			}
-		}
-
-		res = sceRegMgrGetKeyInt("/CONFIG/NP2/", "current_account2", &current_account2);
-		if (res < 0) {
-			SCE_DBG_LOG_ERROR("sceRegMgrGetKeyInt(): 0x%08X\n", res);
-			break;
-		}
-
-		sce_paf_snprintf(temp_path, sizeof(temp_path), "ux0:/user/%02d/savedata/%s", current_account2, titleid);
-		fs_list_init(&pSavedataEnt, temp_path, NULL, NULL);
-
-		res = do_backup_core(path, titleid, pAppEnt, pAppMetaEnt, pLicenseEnt, pSavedataEnt, savedata_only, use_compression);
-	} while (0);
-
-	if (!savedata_only) {
-		fs_list_fini(pLicenseEnt);
-		fs_list_fini(pAppMetaEnt);
-		fs_list_fini(pAppEnt);
-	}
-	fs_list_fini(pSavedataEnt);
-
-	if (res != 0)
-		return res;
-
-	if (use_compression) {
-		SceIoStat stat;
-		char compressed_path[0x80];
-
-		sce_paf_snprintf(temp_path, sizeof(temp_path), "%s/%s/appcont.bin", path, titleid);
-
-		sceIoGetstat(temp_path, &stat);
-
-		if (stat.st_size < 4294967296) {
-			if (BR_event_callback != NULL)
-				BR_event_callback(BR_EVENT_NOTICE_CONT_COMPRESS, BR_STATUS_BEGIN, 0, NULL, NULL);
-			sce_paf_snprintf(compressed_path, sizeof(compressed_path), "%s/%s/appcont.bin.gz", path, titleid);
-			res = sce_paf_gzip_compress(temp_path, compressed_path);
-			sceIoRemove(temp_path);
-			if (BR_event_callback != NULL)
-				BR_event_callback(BR_EVENT_NOTICE_CONT_COMPRESS, BR_STATUS_END, 0, NULL, NULL);
-		}
-	}
 
 	return res;
 }
