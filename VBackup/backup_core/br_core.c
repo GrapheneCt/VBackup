@@ -337,11 +337,13 @@ int do_restore_core(const char *restore_temp_path) {
 
 	res = sceIoMkdir(path, 0777);
 	if (res < 0) {
+		SCE_DBG_LOG_ERROR("sceIoMkdir(%s): 0x%08X\n", path, res);
 		return res;
 	}
 
 	res = fs_list_init(&pEnt, "grw0:/app", NULL, &nFile);
 	if (res < 0) {
+		SCE_DBG_LOG_ERROR("fs_list_init(): 0x%08X\n", res);
 		return res;
 	}
 
@@ -392,6 +394,7 @@ int do_restore_patch_core(const char *restore_temp_path) {
 
 	res = sceIoGetstat("grw0:/patch", &stat);
 	if (res < 0) {
+		SCE_DBG_LOG_DEBUG("sceIoGetstat(): 0x%08X\n", res);
 		return 0; // Not have update patch.
 	}
 
@@ -399,11 +402,13 @@ int do_restore_patch_core(const char *restore_temp_path) {
 
 	res = sceIoMkdir(path, 0777);
 	if (res < 0) {
+		SCE_DBG_LOG_ERROR("sceIoMkdir(%s): 0x%08X\n", path, res);
 		return res;
 	}
 
 	res = fs_list_init(&pEnt, "grw0:/patch", NULL, &nFile);
 	if (res < 0) {
+		SCE_DBG_LOG_ERROR("fs_list_init(): 0x%08X\n", res);
 		return res;
 	}
 
@@ -526,7 +531,7 @@ int do_restore_savedata_core(const char *restore_temp_path, const char *titleid)
 
 	res = sceIoMkdir(path, 0777);
 	if (res < 0) {
-		SCE_DBG_LOG_ERROR("sceIoMkdir(): 0x%08X\n", res);
+		SCE_DBG_LOG_ERROR("sceIoMkdir(%s): 0x%08X\n", path, res);
 		return res;
 	}
 
@@ -631,6 +636,9 @@ int do_backup_core(const char *path, const char *titleid, const BackupContext *p
 			if (size > devFreeSize)
 				return SCE_ERROR_ERRNO_ENOMEM;
 		}
+	}
+	else {
+		SCE_DBG_LOG_ERROR("sceAppMgrGetDevInfo(%s): 0x%08X\n", device, res);
 	}
 
 	SCE_DBG_LOG_TRACE("Size: %lld bytes\n", size);
