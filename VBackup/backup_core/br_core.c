@@ -384,7 +384,7 @@ int do_restore_core(const char *restore_temp_path) {
 	return res;
 }
 
-int do_restore_patch_core(const char *restore_temp_path) {
+int do_restore_patch_core(const char *titleid) {
 
 	int res;
 	SceIoStat stat;
@@ -398,7 +398,7 @@ int do_restore_patch_core(const char *restore_temp_path) {
 		return 0; // Not have update patch.
 	}
 
-	sce_paf_snprintf(path, sizeof(path), "%s/patch", restore_temp_path);
+	sce_paf_snprintf(path, sizeof(path), "ux0:patch/%s", titleid);
 
 	res = sceIoMkdir(path, 0777);
 	if (res < 0) {
@@ -422,23 +422,7 @@ int do_restore_patch_core(const char *restore_temp_path) {
 
 	if (res < 0) {
 		SCE_DBG_LOG_ERROR("fs_list_copy(): 0x%08X\n", res);
-		return res;
 	}
-
-	if (BR_event_callback != NULL)
-		BR_event_callback(BR_EVENT_NOTICE_CONT_PROMOTE, BR_STATUS_BEGIN, 0, NULL, NULL);
-
-	scePromoterUtilityInit();
-
-	res = scePromoterUtilityPromotePkg(path, 1);
-	if (res < 0) {
-		SCE_DBG_LOG_ERROR("scePromoterUtilityPromotePkg(): 0x%08X\n", res);
-	}
-
-	scePromoterUtilityExit();
-
-	if (BR_event_callback != NULL)
-		BR_event_callback(BR_EVENT_NOTICE_CONT_PROMOTE, BR_STATUS_END, 0, NULL, NULL);
 
 	return res;
 }
@@ -910,7 +894,7 @@ int do_restore(const char *path) {
 				break;
 			}
 
-			res = do_restore_patch_core(restore_temp_path);
+			res = do_restore_patch_core(titleid);
 			if (res < 0) {
 				SCE_DBG_LOG_ERROR("do_restore_patch_core(): 0x%08X\n", res);
 				break;
