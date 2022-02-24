@@ -69,14 +69,14 @@ SceVoid menu::list::EntryParserThread::EntryFunction()
 	Resource::Element searchParamSubtext;
 	Plugin::TemplateInitParam tmpParam;
 	ui::Widget *subText = SCE_NULL;
-	ObjectWithCleanup fres;
+	shared_ptr<LocalFile> fres;
 	graphics::Surface *tex = SCE_NULL;
-	WString wtitleName;
-	String appName;
-	String sfoPath;
-	String iconPath;
-	String savedataOnlyPath;
-	WString *wappName = SCE_NULL;
+	wstring wtitleName;
+	string appName;
+	string sfoPath;
+	string iconPath;
+	string savedataOnlyPath;
+	wstring *wappName = SCE_NULL;
 	ScePVoid listBuffer = SCE_NULL;
 	SFO *sfo = SCE_NULL;
 
@@ -142,10 +142,10 @@ SceVoid menu::list::EntryParserThread::EntryFunction()
 
 		if (res == SCE_OK) {
 			wappName = SCE_NULL;
-			wappName = WString::CharToNewWString(appName.data, wappName);
+			wappName = wstring::CharToNewWString(appName.data, wappName);
 		}
 		else {
-			wappName = new WString();
+			wappName = new wstring();
 			*wappName = wtitleName;
 			wtitleName = L"";
 		}
@@ -179,9 +179,6 @@ SceVoid menu::list::EntryParserThread::EntryFunction()
 		if (res == SCE_OK) {
 			graphics::Surface::CreateFromFile(&tex, g_vbPlugin->memoryPool, &fres);
 			tex->base.refCount = -1;
-
-			fres.cleanup->cb(fres.object);
-			delete fres.cleanup;
 		}
 
 		entry->button->hash = (SceUInt32)entry->button;
@@ -307,9 +304,9 @@ menu::list::Page::Page(const char* path, const wchar_t *keyword)
 
 	Dialog::OpenPleaseWait(g_vbPlugin, SCE_NULL, VBUtils::GetString("msg_wait"), SCE_TRUE, LoadCancelDialogCB);
 
-	cwd = new String(path);
+	cwd = new string(path);
 	if (keyword)
-		key = new WString(keyword);
+		key = new wstring(keyword);
 
 	if (g_currentDispFilePage == SCE_NULL)
 		prev = SCE_NULL;
@@ -481,7 +478,7 @@ SceInt32 menu::list::Page::PopulateEntries(const char *rootPath)
 			}
 			else if (fsEntries[i].type == io::Type_Dir) {
 
-				String sfoPath = *cwd + "/" + fsEntries[i].name + "/sce_sys/param.sfo";
+				string sfoPath = *cwd + "/" + fsEntries[i].name + "/sce_sys/param.sfo";
 
 				if (sce_paf_strlen(fsEntries[i].name.data) != 9 || !io::Misc::Exists(sfoPath.data)) {
 					delete item;
@@ -495,7 +492,7 @@ SceInt32 menu::list::Page::PopulateEntries(const char *rootPath)
 				continue;
 			}
 
-			item->name = new SWString(fsEntries[i].name.data);
+			item->name = new swstring(fsEntries[i].name.data);
 
 			item->name->string.ToWString(&item->name->wstring);
 

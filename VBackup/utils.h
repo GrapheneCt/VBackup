@@ -40,12 +40,6 @@ public:
 				finishHandler();
 		}
 
-		static SceVoid JobKiller(thread::JobQueue::Item *job)
-		{
-			if (job)
-				delete job;
-		}
-
 		ui::Widget::EventCallback::EventHandler eventHandler;
 		FinishHandler finishHandler;
 		SceInt32 eventId;

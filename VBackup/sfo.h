@@ -15,11 +15,11 @@ public:
 	~SFO();
 
 	SceInt32 GetValue(const char *name, SceUInt32 *pVal);
-	SceInt32 GetString(const char *name, String *pStr);
+	SceInt32 GetString(const char *name, string *pStr);
 
-	String GetTitle();
+	string GetTitle();
 
-	static String GetTitle(const char *path);
+	static string GetTitle(const char *path);
 
 private:
 

@@ -100,7 +100,7 @@ SceVoid VBUtils::Exit()
 
 SceVoid VBUtils::RunCallbackAsJob(ui::Widget::EventCallback::EventHandler eventHandler, VBUtils::AsyncEnqueue::FinishHandler finishHandler, SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData)
 {
-	AsyncEnqueue *asJob = new AsyncEnqueue("VB::AsyncCallback");
+	auto asJob = shared_ptr<AsyncEnqueue>(new AsyncEnqueue("VB::AsyncCallback"));
 	asJob->eventHandler = eventHandler;
 	asJob->finishHandler = finishHandler;
 	asJob->eventId = eventId;
@@ -108,14 +108,5 @@ SceVoid VBUtils::RunCallbackAsJob(ui::Widget::EventCallback::EventHandler eventH
 	asJob->a3 = a3;
 	asJob->pUserData = pUserData;
 
-	CleanupHandler *req = new CleanupHandler();
-	req->refCount = 0;
-	req->unk_08 = 1;
-	req->cb = (CleanupHandler::CleanupCallback)AsyncEnqueue::JobKiller;
-
-	ObjectWithCleanup itemParam;
-	itemParam.object = asJob;
-	itemParam.cleanup = req;
-
-	s_cbJobQueue->Enqueue(&itemParam);
+	s_cbJobQueue->Enqueue((shared_ptr<thread::JobQueue::Item> *)&asJob);
 }

@@ -27,7 +27,7 @@ SceVoid menu::backup::BackButtonCB::BackButtonCBFun(SceInt32 eventId, paf::ui::W
 	Resource::Element searchParam;
 	ui::Widget *button = SCE_NULL;
 	ui::Widget *topText = SCE_NULL;
-	WString text16;
+	wstring text16;
 
 	if (s_backupPageInstance->backupThread && !s_backupPageInstance->backupThread->IsCanceled()) {
 		searchParam.hash = VBUtils::GetHash("button_main_backup_cancel");
@@ -73,8 +73,8 @@ SceInt32 menu::backup::BackupThread::vshIoMount(SceInt32 id, const char *path, S
 SceInt32 menu::backup::BackupThread::BREventCallback(SceInt32 event, SceInt32 status, SceInt64 value, ScePVoid data, ScePVoid argp)
 {
 	Resource::Element searchParam;
-	WString text16;
-	WString *ptext16 = SCE_NULL;
+	wstring text16;
+	wstring *ptext16 = SCE_NULL;
 	ui::Widget *bottomText = SCE_NULL;
 	ui::Widget *button = SCE_NULL;
 
@@ -103,7 +103,7 @@ SceInt32 menu::backup::BackupThread::BREventCallback(SceInt32 event, SceInt32 st
 		if (status == BR_STATUS_BEGIN) {
 			text16 = VBUtils::GetString("msg_processing");
 			ptext16 = SCE_NULL;
-			ptext16 = WString::CharToNewWString((char *)data, ptext16);
+			ptext16 = wstring::CharToNewWString((char *)data, ptext16);
 			text16 += *ptext16;
 			delete ptext16;
 		}
@@ -123,7 +123,7 @@ SceInt32 menu::backup::BackupThread::BREventCallback(SceInt32 event, SceInt32 st
 
 SceVoid menu::backup::BackupThread::UIResetTask(ScePVoid pUserData)
 {
-	WString text16;
+	wstring text16;
 	Resource::Element searchParam;
 	ui::Widget *topText = SCE_NULL;
 	ui::BusyIndicator *indicator = SCE_NULL;
@@ -154,15 +154,15 @@ SceVoid menu::backup::BackupThread::EntryFunction()
 	SceInt32 res = -1;
 	SceBool grwMounted = SCE_FALSE;
 	Resource::Element searchParam;
-	String text8;
-	String *ptext8 = SCE_NULL;
-	WString text16;
+	string text8;
+	string *ptext8 = SCE_NULL;
+	wstring text16;
 	ui::Widget *topText = SCE_NULL;
 	ui::Widget *bottomText = SCE_NULL;
 	ui::BusyIndicator *indicator = SCE_NULL;
 	ui::Widget *icon = SCE_NULL;
 	ui::Widget *button = SCE_NULL;
-	ObjectWithCleanup fres;
+	shared_ptr<LocalFile> fres;
 	graphics::Surface *tex = SCE_NULL;
 	graphics::Surface *oldTex = SCE_NULL;
 
@@ -259,13 +259,10 @@ SceVoid menu::backup::BackupThread::EntryFunction()
 				thread::s_mainThreadMutex.Unlock();
 				s_lastIconTex = tex;
 			}
-
-			fres.cleanup->cb(fres.object);
-			delete fres.cleanup;
 		}
 		
 		ptext8 = SCE_NULL;
-		ptext8 = String::WCharToNewString(VBUtils::GetStringWithNum("msg_option_backup_device_", menu::settings::Settings::GetInstance()->backup_device), ptext8);
+		ptext8 = string::WCharToNewString(VBUtils::GetStringWithNum("msg_option_backup_device_", menu::settings::Settings::GetInstance()->backup_device), ptext8);
 			
 		if (g_currentPagemode == menu::main::Pagemode_Backup) {
 

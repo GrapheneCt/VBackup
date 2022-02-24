@@ -37,7 +37,7 @@ SceVoid leakTestTask(ScePVoid pUserData)
 {
 	Allocator *glAlloc = Allocator::GetGlobalAllocator();
 	SceInt32 sz = glAlloc->GetFreeSize();
-	String *str = new String();
+	string *str = new string();
 	SceInt32 delta;
 
 	str->MemsizeFormat(sz);
@@ -71,7 +71,7 @@ SceVoid leakTestTask(ScePVoid pUserData)
 
 SceVoid WarningDialogCB(Dialog::ButtonCode button, ScePVoid pUserData)
 {
-	String *text8 = SCE_NULL;
+	string *text8 = SCE_NULL;
 
 	if (button == Dialog::ButtonCode_No) {
 		Framework::s_frameworkInstance->ExitRenderingLoop();
@@ -86,7 +86,7 @@ SceVoid WarningDialogCB(Dialog::ButtonCode button, ScePVoid pUserData)
 	sceAppMgrDestroyOtherApp();
 #endif
 
-	text8 = String::WCharToNewString(VBUtils::GetStringWithNum("msg_option_backup_device_", menu::settings::Settings::GetInstance()->backup_device), text8);
+	text8 = string::WCharToNewString(VBUtils::GetStringWithNum("msg_option_backup_device_", menu::settings::Settings::GetInstance()->backup_device), text8);
 	if (!io::Misc::Exists(text8->data)) {
 		io::Misc::MkdirRWSYS(text8->data);
 		if (!io::Misc::Exists(text8->data)) {
@@ -94,7 +94,7 @@ SceVoid WarningDialogCB(Dialog::ButtonCode button, ScePVoid pUserData)
 			menu::settings::Settings::GetInstance()->backup_device = 0;
 			delete text8;
 			text8 = SCE_NULL;
-			text8 = String::WCharToNewString(VBUtils::GetStringWithNum("msg_option_backup_device_", menu::settings::Settings::GetInstance()->backup_device), text8);
+			text8 = string::WCharToNewString(VBUtils::GetStringWithNum("msg_option_backup_device_", menu::settings::Settings::GetInstance()->backup_device), text8);
 			io::Misc::MkdirRWSYS(text8->data);
 		}
 	}

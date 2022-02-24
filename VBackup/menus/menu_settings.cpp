@@ -82,7 +82,7 @@ menu::settings::Settings::Settings()
 	appSet->GetInt("backup_overwrite", &backup_overwrite, k_defBackupOverwrite);
 	appSet->GetInt("compression", &compression, k_defCompression);
 
-	WString *verinfo = new WString();
+	wstring *verinfo = new wstring();
 
 #ifdef _DEBUG
 	*verinfo = L"DEBUG ";
@@ -163,9 +163,9 @@ SceInt32 menu::settings::Settings::CBValueChange(const char *elementId, const ch
 	SceInt32 ret = SCE_OK;
 	SceUInt32 elemHash = VBUtils::GetHash(elementId);
 	SceInt32 value = sce_paf_strtol(newValue, &end, 10);
-	String *text8 = SCE_NULL;
-	WString label16;
-	String label8;
+	string *text8 = SCE_NULL;
+	wstring label16;
+	string label8;
 
 	switch (elemHash) {
 	case Hash_Sort:
@@ -175,7 +175,7 @@ SceInt32 menu::settings::Settings::CBValueChange(const char *elementId, const ch
 		GetInstance()->sort = value;
 		break;
 	case Hash_BackupDevice:
-		text8 = String::WCharToNewString(VBUtils::GetStringWithNum("msg_option_backup_device_", value), text8);
+		text8 = string::WCharToNewString(VBUtils::GetStringWithNum("msg_option_backup_device_", value), text8);
 		if (!io::Misc::Exists(text8->data))
 			io::Misc::MkdirRWSYS(text8->data);
 		if (io::Misc::Exists(text8->data)) {
@@ -219,7 +219,7 @@ SceInt32 menu::settings::Settings::CBValueChange2(const char *elementId, const c
 SceVoid menu::settings::Settings::CBTerm()
 {
 	Resource::Element searchParam;
-	String *text8 = SCE_NULL;
+	string *text8 = SCE_NULL;
 	SceInt32 value = 0;
 
 	// Reset file browser pages if needed
@@ -243,7 +243,7 @@ SceVoid menu::settings::Settings::CBTerm()
 			}
 
 			GetAppSetInstance()->GetInt("backup_device", &value, 0);
-			text8 = String::WCharToNewString(VBUtils::GetStringWithNum("msg_option_backup_device_", value), text8);
+			text8 = string::WCharToNewString(VBUtils::GetStringWithNum("msg_option_backup_device_", value), text8);
 
 			menu::list::Page *newPage = new menu::list::Page(text8->data, SCE_NULL);
 
@@ -253,7 +253,7 @@ SceVoid menu::settings::Settings::CBTerm()
 			s_needBackupCwdReload = SCE_FALSE;
 		}
 		else {
-			text8 = new String(g_currentDispFilePage->cwd->data);
+			text8 = new string(g_currentDispFilePage->cwd->data);
 
 			// This condition is VBackup-specific
 			if (!g_currentDispFilePage->prev) {

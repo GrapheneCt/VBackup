@@ -15,7 +15,7 @@ static menu::main::Page *s_mainPageInstance = SCE_NULL;
 
 SceVoid menu::main::ButtonCB::ButtonCBFun(SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData)
 {
-	String *text8 = SCE_NULL;
+	string *text8 = SCE_NULL;
 
 	switch (self->hash) {
 	case ButtonHash_Backup:
@@ -29,7 +29,7 @@ SceVoid menu::main::ButtonCB::ButtonCBFun(SceInt32 eventId, ui::Widget *self, Sc
 		g_currentPagemode = Pagemode_Restore;
 		g_backupFromList = SCE_FALSE;
 
-		text8 = String::WCharToNewString(VBUtils::GetStringWithNum("msg_option_backup_device_", menu::settings::Settings::GetInstance()->backup_device), text8);
+		text8 = string::WCharToNewString(VBUtils::GetStringWithNum("msg_option_backup_device_", menu::settings::Settings::GetInstance()->backup_device), text8);
 		new menu::list::Page(text8->data, SCE_NULL);
 		menu::search::Page::Create();
 		break;

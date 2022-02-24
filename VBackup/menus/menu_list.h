@@ -76,7 +76,7 @@ namespace menu {
 
 			Entry *prev;
 			Entry *next;
-			SWString *name;
+			swstring *name;
 			Type type;
 			ui::ImageButton *button;
 			ButtonCB *buttonCB;
@@ -109,8 +109,8 @@ namespace menu {
 
 			ui::Plane *root;
 			ui::Box *box;
-			String *cwd;
-			WString *key;
+			string *cwd;
+			wstring *key;
 			Page *prev;
 			Page *next;
 			SceUInt32 entryNum;

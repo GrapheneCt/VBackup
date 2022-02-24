@@ -16,8 +16,8 @@ SceVoid menu::search::ButtonCB::ButtonCBFun(SceInt32 eventId, ui::Widget *self, 
 {
 	Resource::Element searchParam;
 	ui::TextBox *searchBox;
-	String *text8 = SCE_NULL;
-	WString search16;
+	string *text8 = SCE_NULL;
+	wstring search16;
 	menu::list::Page *tmpCurr;
 
 	searchParam.hash = VBUtils::GetHash("text_box_top_search");
@@ -25,7 +25,7 @@ SceVoid menu::search::ButtonCB::ButtonCBFun(SceInt32 eventId, ui::Widget *self, 
 
 	searchBox->GetLabel(&search16);
 
-	text8 = new String(g_currentDispFilePage->cwd->data);
+	text8 = new string(g_currentDispFilePage->cwd->data);
 
 	if (!g_currentDispFilePage->prev) {
 		delete g_currentDispFilePage;

@@ -38,8 +38,8 @@ SceVoid Dialog::OpenPleaseWait(Plugin *workPlugin, wchar_t *titleText, wchar_t *
 
 	SceBool isMainThread = thread::IsMainThread();
 
-	WString title = titleText;
-	WString message = messageText;
+	wstring title = titleText;
+	wstring message = messageText;
 
 	s_currentEventHandler = eventHandler;
 
@@ -61,8 +61,8 @@ SceVoid Dialog::OpenYesNo(Plugin *workPlugin, wchar_t *titleText, wchar_t *messa
 
 	SceBool isMainThread = thread::IsMainThread();
 
-	WString title = titleText;
-	WString message = messageText;
+	wstring title = titleText;
+	wstring message = messageText;
 
 	s_currentEventHandler = eventHandler;
 
@@ -127,8 +127,8 @@ SceVoid Dialog::OpenThreeButton(
 	s_threeButtonContTable[11] = 0x20413274;
 	dparam.contentsList = (CommonGuiDialog::ContentsHashTable *)s_threeButtonContTable;
 
-	WString title = titleText;
-	WString message = messageText;
+	wstring title = titleText;
+	wstring message = messageText;
 
 	s_currentEventHandler = eventHandler;
 
@@ -162,8 +162,8 @@ SceVoid Dialog::OpenTwoButton(
 	s_twoButtonContTable[3] = 0x20413274;
 	dparam.contentsList = (CommonGuiDialog::ContentsHashTable *)s_twoButtonContTable;
 
-	WString title = titleText;
-	WString message = messageText;
+	wstring title = titleText;
+	wstring message = messageText;
 
 	s_currentEventHandler = eventHandler;
 

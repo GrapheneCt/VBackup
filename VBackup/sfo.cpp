@@ -61,7 +61,7 @@ SceInt32 SFO::GetValue(const char *name, SceUInt32 *pVal)
 	return SCE_ERROR_ERRNO_ENODATA;
 }
 
-SceInt32 SFO::GetString(const char *name, String *pStr)
+SceInt32 SFO::GetString(const char *name, string *pStr)
 {
 	if (!pStr || !name)
 		return SCE_ERROR_ERRNO_EINVAL;
@@ -88,16 +88,16 @@ SceInt32 SFO::GetString(const char *name, String *pStr)
 	return SCE_ERROR_ERRNO_ENODATA;
 }
 
-String SFO::GetTitle()
+string SFO::GetTitle()
 {
-	String res;
+	string res;
 	GetString("TITLE", &res);
 	return res;
 }
 
-String SFO::GetTitle(const char *path)
+string SFO::GetTitle(const char *path)
 {
-	String res;
+	string res;
 	SFO sfo(path);
 	sfo.GetString("TITLE", &res);
 	return res;
