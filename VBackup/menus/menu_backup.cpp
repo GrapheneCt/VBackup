@@ -259,6 +259,8 @@ SceVoid menu::backup::BackupThread::EntryFunction()
 				thread::s_mainThreadMutex.Unlock();
 				s_lastIconTex = tex;
 			}
+
+			fres.reset();
 		}
 		
 		ptext8 = SCE_NULL;

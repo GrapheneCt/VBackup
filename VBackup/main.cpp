@@ -103,7 +103,7 @@ SceVoid WarningDialogCB(Dialog::ButtonCode button, ScePVoid pUserData)
 SceVoid pluginLoadCB(Plugin *plugin)
 {
 	Resource::Element searchParam;
-	Plugin::SceneInitParam rwiParam;
+	Plugin::PageInitParam rwiParam;
 	Plugin::TemplateInitParam tmpParam;
 
 	if (plugin == SCE_NULL) {
@@ -116,7 +116,7 @@ SceVoid pluginLoadCB(Plugin *plugin)
 	new menu::settings::Settings();
 
 	searchParam.hash = VBUtils::GetHash("page_common");
-	g_rootPage = g_vbPlugin->CreateScene(&searchParam, &rwiParam);
+	g_rootPage = g_vbPlugin->PageOpen(&searchParam, &rwiParam);
 
 	searchParam.hash = VBUtils::GetHash("plane_common_bg");
 	g_root = g_rootPage->GetChildByHash(&searchParam, 0);

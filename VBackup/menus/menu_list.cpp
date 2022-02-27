@@ -179,6 +179,8 @@ SceVoid menu::list::EntryParserThread::EntryFunction()
 		if (res == SCE_OK) {
 			graphics::Surface::CreateFromFile(&tex, g_vbPlugin->memoryPool, &fres);
 			tex->base.refCount = -1;
+
+			fres.reset();
 		}
 
 		entry->button->hash = (SceUInt32)entry->button;

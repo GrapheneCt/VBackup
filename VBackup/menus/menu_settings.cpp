@@ -313,7 +313,6 @@ AppSettings *menu::settings::Settings::GetAppSetInstance()
 SceVoid menu::settings::SettingsButtonCB::SettingsButtonCBFun(SceInt32 eventId, paf::ui::Widget *self, SceInt32 a3, ScePVoid pUserData)
 {
 	Resource::Element searchParam;
-	Plugin::SceneInitParam rwiParam;
 	SceUInt32 callerMode = 0;
 
 	if (pUserData)
