@@ -41,12 +41,12 @@ SceVoid leakTestTask(ScePVoid pUserData)
 	SceInt32 delta;
 
 	str->MemsizeFormat(sz);
-	//sceClibPrintf("[EMPVA_DEBUG] Free heap memory: %s\n", str->data);
+	//sceClibPrintf("[VB_DEBUG] Free heap memory: %s\n", str->data);
 	delta = s_oldMemSize - sz;
 	delta = -delta;
 	if (delta) {
-		sceClibPrintf("[EMPVA_DEBUG] Memory delta: %d bytes\n", delta);
-		sceClibPrintf("[EMPVA_DEBUG] Free heap memory: %s\n", str->data);
+		sceClibPrintf("[VB_DEBUG] Memory delta: %d bytes\n", delta);
+		sceClibPrintf("[VB_DEBUG] Free heap memory: %s\n", str->data);
 	}
 	s_oldMemSize = sz;
 	delete str;
@@ -56,13 +56,13 @@ SceVoid leakTestTask(ScePVoid pUserData)
 	sz = Framework::s_frameworkInstance->GetDefaultGraphicsMemoryPool()->GetFreeSize();
 	str->MemsizeFormat(sz);
 
-	//sceClibPrintf("[EMPVA_DEBUG] Free graphics pool: %s\n", str->data);
+	//sceClibPrintf("[VB_DEBUG] Free graphics pool: %s\n", str->data);
 
 	delta = s_oldGraphMemSize - sz;
 	delta = -delta;
 	if (delta) {
-		sceClibPrintf("[EMPVA_DEBUG] Free graphics pool: %s\n", str->data);
-		sceClibPrintf("[EMPVA_DEBUG] Graphics pool delta: %d bytes\n", delta);
+		sceClibPrintf("[VB_DEBUG] Free graphics pool: %s\n", str->data);
+		sceClibPrintf("[VB_DEBUG] Graphics pool delta: %d bytes\n", delta);
 	}
 	s_oldGraphMemSize = sz;
 	delete str;*/
@@ -79,7 +79,7 @@ SceVoid WarningDialogCB(Dialog::ButtonCode button, ScePVoid pUserData)
 	}
 
 #ifdef _DEBUG
-	//common::Utils::AddMainThreadTask(leakTestTask, SCE_NULL);
+	common::Utils::AddMainThreadTask(leakTestTask, SCE_NULL);
 #endif
 
 #ifndef _DEBUG

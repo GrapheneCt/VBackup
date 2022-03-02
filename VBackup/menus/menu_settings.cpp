@@ -31,6 +31,8 @@ static menu::settings::Settings *s_settingsInstance = SCE_NULL;
 menu::settings::Settings::Settings()
 {
 	SceInt32 ret;
+	SceSize fsize = 0;
+	char *fmime = SCE_NULL;
 	Framework::PluginInitParam pluginParam;
 	AppSettings::InitParam sparam;
 
@@ -50,7 +52,7 @@ menu::settings::Settings::Settings()
 
 	Framework::s_frameworkInstance->LoadPlugin(&pluginParam);
 
-	LocalFile::Open(&sparam.xmlFile, "app0:vbackup_settings.xml", SCE_O_RDONLY, 0, &ret);
+	Resource::LookupFiletable((shared_ptr<MemFile>*)&sparam.xmlFile, g_vbPlugin->resource, VBUtils::GetHash("file_vbackup_settings"), &fsize, &fmime);
 
 	sparam.allocCB = sce_paf_malloc;
 	sparam.freeCB = sce_paf_free;
