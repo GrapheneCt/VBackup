@@ -68,6 +68,10 @@ menu::search::Page::Page()
 		commonWidget = g_rootPage->GetChildByHash(&searchParam, 0);
 		commonWidget->RegisterEventCallback(ui::Widget::EventMain_Decide, buttonCB, 0);
 
+		searchParam.hash = VBUtils::GetHash("text_box_top_search");
+		commonWidget = (ui::TextBox *)g_rootPage->GetChildByHash(&searchParam, 0);
+		commonWidget->RegisterEventCallback(0x1000000B, buttonCB, 0);
+
 		searchParam.hash = VBUtils::GetHash("plane_top_search");
 		commonWidget = g_rootPage->GetChildByHash(&searchParam, 0);
 	}

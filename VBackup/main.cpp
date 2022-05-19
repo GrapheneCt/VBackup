@@ -79,7 +79,7 @@ SceVoid WarningDialogCB(Dialog::ButtonCode button, ScePVoid pUserData)
 	}
 
 #ifdef _DEBUG
-	common::Utils::AddMainThreadTask(leakTestTask, SCE_NULL);
+	//common::Utils::AddMainThreadTask(leakTestTask, SCE_NULL);
 #endif
 
 #ifndef _DEBUG

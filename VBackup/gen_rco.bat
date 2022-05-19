@@ -25,5 +25,3 @@ copy /b "RES_RCO/file\%%f" "%TMP%"
 )
 
 "%PYTHON%" "%RCO%" -o CONTENTS/vbackup_plugin.rco RES_RCO/vbackup_plugin.xml
-
-@RD /S /Q "%TMP%"
