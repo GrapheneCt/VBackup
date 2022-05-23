@@ -1,5 +1,5 @@
 # VBackup
-Advanced backup tool for PS Vita
+Advanced backup tool for PS Vita. Creates backups of applications and savedata by packing them in filesystem image that can be saved on any of the storage devices available on your PS Vita.
 
 # Features
 - Full application backup
