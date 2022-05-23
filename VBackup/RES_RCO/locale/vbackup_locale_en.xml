@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<stringset>
+
+  <string src="All applications will be closed. Continue?" id="msg_appclose_warning_dialog" />
+  
+  <string src="Backup" id="msg_backup" />
+  <string src="Backup From List" id="msg_backup_list" />
+  <string src="Restore" id="msg_restore" />
+  
+  <string src="Select backup type." id="msg_backup_dialog" />
+  <string src="Full" id="msg_backup_dialog_full" />
+  <string src="Savedata Only" id="msg_backup_dialog_savedata_only" />
+  <string src="Backup in Progress: " id="msg_backup_progress" />
+  <string src="Restore in Progress: " id="msg_restore_progress" />
+  <string src="All Operations Completed" id="msg_completed" />
+  <string src="Processing " id="msg_processing" />
+  <string src="Compressing..." id="msg_compressing" />
+  <string src="Decompressing..." id="msg_decompressing" />
+  <string src="Installing..." id="msg_installing" />
+  <string src="Backup already exists. Do you want to overwrite it?" id="msg_backup_overwrite_dialog" />
+  <string src="Application/savedata already exists and will be overwritten. You will not be able to cancel this operation. Do you want to continue?" id="msg_restore_overwrite_dialog" />
+  <string src="Insufficient target device capacity." id="msg_enomem" />
+  
+  <string src="Settings" id="msg_settings" />
+  <string src="Backup Path" id="msg_settings_backup_device" />
+  <string src="Sort" id="msg_settings_sort" />
+  <string src="Use Compression" id="msg_toggle_compression" />
+  <string src="Show Application Close Warning" id="msg_toggle_appclose" />
+  <string src="Show Backup Overwrite Warning" id="msg_toggle_backup_overwrite" />
+  <string src="Build Information" id="msg_settings_verinfo" />
+  
+  <string src="ux0:vbackup" id="msg_option_backup_device_0" />
+  <string src="ur0:vbackup" id="msg_option_backup_device_1" />
+  <string src="uma0:vbackup" id="msg_option_backup_device_2" />
+  <string src="imc0:vbackup" id="msg_option_backup_device_3" />
+  <string src="host0:vbackup" id="msg_option_backup_device_4" />
+  <string src="sd0:vbackup" id="msg_option_backup_device_5" />
+  <string src="Device not found." id="msg_settings_backup_device_not_found" />
+  
+  <string src="By TitleID (Ascending)" id="msg_option_sort_0" />
+  <string src="By TitleID (Descending)" id="msg_option_sort_1" />
+  
+</stringset>

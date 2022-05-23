@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<application_settings version="1.0" bg_color="22.0, 22.0, 22.0, 255.0">
+	<setting_list id="vbackup_setting" title="msg_settings">
+		<list id="list_backup_device" title="msg_settings_backup_device" error_dialog_message="msg_settings_backup_device_not_found" key="backup_device" default_value="0">
+			<list_item id="list_backup_device_00" title="msg_option_backup_device_0" value="0" />
+			<list_item id="list_backup_device_01" title="msg_option_backup_device_1" value="1" />
+			<list_item id="list_backup_device_02" title="msg_option_backup_device_2" value="2" />
+			<list_item id="list_backup_device_03" title="msg_option_backup_device_3" value="3" />
+			<list_item id="list_backup_device_04" title="msg_option_backup_device_4" value="4" />
+			<list_item id="list_backup_device_05" title="msg_option_backup_device_5" value="5" />
+		</list>
+		<list id="list_sort" title="msg_settings_sort" key="sort" default_value="0">
+			<list_item id="list_sort_00" title="msg_option_sort_0" value="0" />
+			<list_item id="list_sort_01" title="msg_option_sort_1" value="1" />
+		</list>
+		<toggle_switch id="toggle_compression" title="msg_toggle_compression" key="compression" default_value="0" />
+		<toggle_switch id="toggle_appclose" title="msg_toggle_appclose" key="appclose" default_value="1" />
+		<toggle_switch id="toggle_backup_overwrite" title="msg_toggle_backup_overwrite" key="backup_overwrite" default_value="1" />
+		<setting_list id="verinfo_setting" title="msg_settings_verinfo" style="edit">
+		    <label id="label_verinfo" title="msg_verinfo" style="heading" />
+	    </setting_list>
+	</setting_list>
+</application_settings>

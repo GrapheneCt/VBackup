@@ -56,7 +56,7 @@
     </Link>
     <PostBuildEvent>
       <Command>call "$(ProjectDir)gen_rco.bat"
-"$(SCE_PSP2_SDK_DIR)/host_tools/build/bin/vdsuite-pubprx.exe" --strip --compress --boot-param "$(ProjectDir)ebootparam.bin" "$(LocalDebuggerCommand)" "$(OutDir)eboot.bin"
+"$(SCE_PSP2_SDK_DIR)/host_tools/build/bin/vdsuite-pubprx.exe" --boot-param "$(ProjectDir)ebootparam.bin" "$(LocalDebuggerCommand)" "$(OutDir)eboot.bin"
 "$(SCE_PSP2_SDK_DIR)/host_tools/build/bin/vdsuite-pubsfo.exe" "$(ProjectDir)param.sfx" "$(OutDir)param.sfo"
 "$(SCE_PSP2_SDK_DIR)/host_tools/build/bin/vdsuite-pubgen.exe" --file "$(OutDir)eboot.bin" eboot.bin  --file "$(OutDir)param.sfo" sce_sys/param.sfo --file "$(ProjectDir)CONTENTS/sce_sys/icon0.png" sce_sys/icon0.png --file "$(ProjectDir)CONTENTS/sce_sys/pic0.png" sce_sys/pic0.png --file "$(ProjectDir)CONTENTS/sce_sys/livearea" sce_sys/livearea --file "$(ProjectDir)CONTENTS/vbackup_plugin.rco" vbackup_plugin.rco --file "$(ProjectDir)CONTENTS/module" module "$(OutDir)$(ProjectName).vpk"
 copy /Y "$(OutDir)eboot.bin" "$(ProjectDir)CONTENTS/eboot.bin"
