@@ -4,30 +4,30 @@
   <string src="すべてのアプリケーションが閉じられます。 続けますか？" id="msg_appclose_warning_dialog" />
   
   <string src="バックアップ" id="msg_backup" />
-  <string src="Backup From List" id="msg_backup_list" />
-  <string src="Restore" id="msg_restore" />
+  <string src="リストからのバックアップ" id="msg_backup_list" />
+  <string src="復元" id="msg_restore" />
   
-  <string src="Select backup type." id="msg_backup_dialog" />
-  <string src="Full" id="msg_backup_dialog_full" />
-  <string src="Savedata Only" id="msg_backup_dialog_savedata_only" />
-  <string src="Backup in Progress: " id="msg_backup_progress" />
-  <string src="Restore in Progress: " id="msg_restore_progress" />
-  <string src="All Operations Completed" id="msg_completed" />
-  <string src="Processing " id="msg_processing" />
-  <string src="Compressing..." id="msg_compressing" />
-  <string src="Decompressing..." id="msg_decompressing" />
-  <string src="Installing..." id="msg_installing" />
-  <string src="Backup already exists. Do you want to overwrite it?" id="msg_backup_overwrite_dialog" />
-  <string src="Application/savedata already exists and will be overwritten. You will not be able to cancel this operation. Do you want to continue?" id="msg_restore_overwrite_dialog" />
-  <string src="Insufficient target device capacity." id="msg_enomem" />
+  <string src="バックアップのタイプを選択してください" id="msg_backup_dialog" />
+  <string src="フル" id="msg_backup_dialog_full" />
+  <string src="セーブデータのみ" id="msg_backup_dialog_savedata_only" />
+  <string src="進行中のバックアップ： " id="msg_backup_progress" />
+  <string src="進行中の復元： " id="msg_restore_progress" />
+  <string src="すべての操作が完了しました" id="msg_completed" />
+  <string src="処理 " id="msg_processing" />
+  <string src="圧縮中..." id="msg_compressing" />
+  <string src="解凍中..." id="msg_decompressing" />
+  <string src="インストール中..." id="msg_installing" />
+  <string src="バックアップはすでに存在します。 上書きしますか？" id="msg_backup_overwrite_dialog" />
+  <string src="アプリケーション/保存データはすでに存在し、上書きされます。 この操作をキャンセルすることはできません。 続けますか？" id="msg_restore_overwrite_dialog" />
+  <string src="ターゲットデバイスの容量が不十分です" id="msg_enomem" />
   
   <string src="設定" id="msg_settings" />
-  <string src="Backup Path" id="msg_settings_backup_device" />
+  <string src="バックアップパス" id="msg_settings_backup_device" />
   <string src="ソート" id="msg_settings_sort" />
-  <string src="Use Compression" id="msg_toggle_compression" />
-  <string src="Show Application Close Warning" id="msg_toggle_appclose" />
-  <string src="Show Backup Overwrite Warning" id="msg_toggle_backup_overwrite" />
-  <string src="Build Information" id="msg_settings_verinfo" />
+  <string src="圧縮を使用" id="msg_toggle_compression" />
+  <string src="アプリケーションを閉じる警告を表示する" id="msg_toggle_appclose" />
+  <string src="バックアップ上書き警告を表示する" id="msg_toggle_backup_overwrite" />
+  <string src="ビルド情報" id="msg_settings_verinfo" />
   
   <string src="ux0:vbackup" id="msg_option_backup_device_0" />
   <string src="ur0:vbackup" id="msg_option_backup_device_1" />
@@ -35,9 +35,9 @@
   <string src="imc0:vbackup" id="msg_option_backup_device_3" />
   <string src="host0:vbackup" id="msg_option_backup_device_4" />
   <string src="sd0:vbackup" id="msg_option_backup_device_5" />
-  <string src="Device not found." id="msg_settings_backup_device_not_found" />
+  <string src="デバイスが見つかりません。" id="msg_settings_backup_device_not_found" />
   
   <string src="TitleID（昇順）" id="msg_option_sort_0" />
-  <string src="By TitleID (Descending)" id="msg_option_sort_1" />
+  <string src="TitleID（降順）" id="msg_option_sort_1" />
   
 </stringset>
