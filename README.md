@@ -19,7 +19,7 @@ PCSE00003
 
 # Adding new language:
 
-- Use [English locale](https://github.com/GrapheneCt/VBackup/blob/main/VBackup/RES_RCO/locale/vbackup_locale_en.xml) as base. Name your translation empva_locale_XX.xml, where XX is language code.
+- Use [English locale](https://github.com/GrapheneCt/VBackup/blob/main/VBackup/RES_RCO/locale/vbackup_locale_en.xml) as base. Name your translation vbackup_locale_XX.xml, where XX is language code.
 Supported language codes can be seen [here](https://github.com/GrapheneCt/VBackup/blob/main/VBackup/RES_RCO/vbackup_plugin.xml#L159) (id attribute).
 - Submit your translation as pull request, it will be added in the next release.
 
