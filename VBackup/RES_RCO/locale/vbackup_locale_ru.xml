@@ -4,7 +4,7 @@
   <string src="Запущенные программы будут закрыты. Продолжить?" id="msg_appclose_warning_dialog" />
   
   <string src="Скопировать" id="msg_backup" />
-  <string src="Скопировать с файла" id="msg_backup_list" />
+  <string src="Скопировать из списка" id="msg_backup_list" />
   <string src="Востановить" id="msg_restore" />
   
   <string src="Выберите что вы хотите скопировать." id="msg_backup_dialog" />
@@ -17,15 +17,15 @@
   <string src="Сжимаем данные..." id="msg_compressing" />
   <string src="Расшифровываем данные..." id="msg_decompressing" />
   <string src="Устанавливаем..." id="msg_installing" />
-  <string src="Копия уже существует. Вы желаете переписать его?" id="msg_backup_overwrite_dialog" />
+  <string src="Копия уже существует. Вы желаете переписать её?" id="msg_backup_overwrite_dialog" />
   <string src="Программа/сохранение уже существует и будет перезаписано. Вы не сможете прервать этот процесс. Продолжить?" id="msg_restore_overwrite_dialog" />
-  <string src="У вас недостаточно памяти." id="msg_enomem" />
+  <string src="На выбранном устройстве недостаточно свободной памяти." id="msg_enomem" />
   
   <string src="Настройки" id="msg_settings" />
   <string src="Путь для копирования" id="msg_settings_backup_device" />
   <string src="Сортировка" id="msg_settings_sort" />
   <string src="Использовать сжатие" id="msg_toggle_compression" />
-  <string src="Отображать предупреждение об закрытии всех программ" id="msg_toggle_appclose" />
+  <string src="Отображать предупреждение о закрытии всех программ" id="msg_toggle_appclose" />
   <string src="Отображать предупреждение при перезаписи данных" id="msg_toggle_backup_overwrite" />
   <string src="О программе" id="msg_settings_verinfo" />
   
@@ -40,3 +40,4 @@
   <string src="По возрастанию (TitleID)" id="msg_option_sort_0" />
   <string src="По убыванию (TitleID)" id="msg_option_sort_1" />
   
+</stringset>

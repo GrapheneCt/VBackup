@@ -157,7 +157,7 @@
   </templatetable>
   
   <stringtable>
-	<locale origsize="3856" src="RES_RCO_TMP\vbackup_locale_en.xml.rcs.zlib" compress="on" id="ja" />
+	<locale origsize="3264" src="RES_RCO_TMP\vbackup_locale_ja.xml.rcs.zlib" compress="on" id="ja" />
     <locale origsize="3856" src="RES_RCO_TMP\vbackup_locale_en.xml.rcs.zlib" compress="on" id="en" />
     <locale origsize="3856" src="RES_RCO_TMP\vbackup_locale_en.xml.rcs.zlib" compress="on" id="en-gb" />
     <locale origsize="3856" src="RES_RCO_TMP\vbackup_locale_en.xml.rcs.zlib" compress="on" id="fr" />
@@ -167,7 +167,7 @@
     <locale origsize="3856" src="RES_RCO_TMP\vbackup_locale_en.xml.rcs.zlib" compress="on" id="nl" />
     <locale origsize="3856" src="RES_RCO_TMP\vbackup_locale_en.xml.rcs.zlib" compress="on" id="pt" />
     <locale origsize="3856" src="RES_RCO_TMP\vbackup_locale_en.xml.rcs.zlib" compress="on" id="pt-br" />
-    <locale origsize="3856" src="RES_RCO_TMP\vbackup_locale_en.xml.rcs.zlib" compress="on" id="ru" />
+    <locale origsize="4080" src="RES_RCO_TMP\vbackup_locale_ru.xml.rcs.zlib" compress="on" id="ru" />
     <locale origsize="3856" src="RES_RCO_TMP\vbackup_locale_en.xml.rcs.zlib" compress="on" id="ko" />
     <locale origsize="3856" src="RES_RCO_TMP\vbackup_locale_en.xml.rcs.zlib" compress="on" id="zh-t" />
     <locale origsize="3856" src="RES_RCO_TMP\vbackup_locale_en.xml.rcs.zlib" compress="on" id="zh-s" />
