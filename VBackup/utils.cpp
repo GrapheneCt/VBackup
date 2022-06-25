@@ -11,54 +11,41 @@
 #include "utils.h"
 #include "common.h"
 
-static thread::JobQueue *s_cbJobQueue = SCE_NULL;
+static job::JobQueue *s_cbJobQueue = SCE_NULL;
 static SceBool s_powerTickTaskState = SCE_FALSE;
 
 SceUInt32 VBUtils::GetHash(const char *name)
 {
-	Resource::Element searchRequest;
-	Resource::Element searchResult;
+	string searchRequest;
+	rco::Element searchResult;
 
-	searchRequest.id = name;
-	searchResult.hash = searchResult.GetHashById(&searchRequest);
+	searchRequest = name;
+	searchResult.hash = searchResult.GetHash(&searchRequest);
 
 	return searchResult.hash;
 }
 
 wchar_t *VBUtils::GetStringWithNum(const char *name, SceUInt32 num)
 {
-	Resource::Element searchRequest;
+	rco::Element searchRequest;
 	char fullName[128];
 
 	sce_paf_snprintf(fullName, sizeof(fullName), "%s%u", name, num);
 
 	searchRequest.hash = VBUtils::GetHash(fullName);
-	wchar_t *res = (wchar_t *)g_vbPlugin->GetString(&searchRequest);
+	wchar_t *res = (wchar_t *)g_vbPlugin->GetWString(&searchRequest);
 
 	return res;
 }
 
 wchar_t *VBUtils::GetString(const char *name)
 {
-	Resource::Element searchRequest;
+	rco::Element searchRequest;
 
 	searchRequest.hash = VBUtils::GetHash(name);
-	wchar_t *res = (wchar_t *)g_vbPlugin->GetString(&searchRequest);
+	wchar_t *res = (wchar_t *)g_vbPlugin->GetWString(&searchRequest);
 
 	return res;
-}
-
-SceInt32 VBUtils::Alphasort(const void *p1, const void *p2) 
-{
-	io::Dir::Dirent *entryA = (io::Dir::Dirent *)p1;
-	io::Dir::Dirent *entryB = (io::Dir::Dirent *)p2;
-
-	if ((entryA->type == io::Type_Dir) && (entryB->type != io::Type_Dir))
-		return -1;
-	else if ((entryA->type != io::Type_Dir) && (entryB->type == io::Type_Dir))
-		return 1;
-
-	return sce_paf_strcasecmp(entryA->name.data, entryB->name.data);
 }
 
 SceVoid VBUtils::PowerTickTask(ScePVoid pUserData)
@@ -72,11 +59,11 @@ SceVoid VBUtils::SetPowerTickTask(SceBool enable)
 		return;
 
 	if (enable) {
-		common::Utils::AddMainThreadTask(VBUtils::PowerTickTask, SCE_NULL);
+		task::Register(VBUtils::PowerTickTask, SCE_NULL);
 		s_powerTickTaskState = SCE_TRUE;
 	}
 	else {
-		common::Utils::RemoveMainThreadTask(VBUtils::PowerTickTask, SCE_NULL);
+		task::Unregister(VBUtils::PowerTickTask, SCE_NULL);
 		s_powerTickTaskState = SCE_FALSE;
 	}
 
@@ -84,13 +71,13 @@ SceVoid VBUtils::SetPowerTickTask(SceBool enable)
 
 SceVoid VBUtils::Init()
 {
-	thread::JobQueue::Opt queueOpt;
+	job::JobQueue::Option queueOpt;
 	queueOpt.workerNum = 1;
 	queueOpt.workerOpt = SCE_NULL;
 	queueOpt.workerPriority = SCE_KERNEL_HIGHEST_PRIORITY_USER + 30;
 	queueOpt.workerStackSize = SCE_KERNEL_256KiB;
 
-	s_cbJobQueue = new thread::JobQueue("VB::CallbackJobQueue", &queueOpt);
+	s_cbJobQueue = new job::JobQueue("VB::CallbackJobQueue", &queueOpt);
 }
 
 SceVoid VBUtils::Exit()
@@ -98,9 +85,9 @@ SceVoid VBUtils::Exit()
 	sceKernelExitProcess(0);
 }
 
-SceVoid VBUtils::RunCallbackAsJob(ui::Widget::EventCallback::EventHandler eventHandler, VBUtils::AsyncEnqueue::FinishHandler finishHandler, SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData)
+SceVoid VBUtils::RunCallbackAsJob(ui::EventCallback::EventHandler eventHandler, VBUtils::AsyncEnqueue::FinishHandler finishHandler, SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData)
 {
-	auto asJob = shared_ptr<AsyncEnqueue>(new AsyncEnqueue("VB::AsyncCallback"));
+	auto asJob = SharedPtr<AsyncEnqueue>(new AsyncEnqueue("VB::AsyncCallback"));
 	asJob->eventHandler = eventHandler;
 	asJob->finishHandler = finishHandler;
 	asJob->eventId = eventId;
@@ -108,5 +95,5 @@ SceVoid VBUtils::RunCallbackAsJob(ui::Widget::EventCallback::EventHandler eventH
 	asJob->a3 = a3;
 	asJob->pUserData = pUserData;
 
-	s_cbJobQueue->Enqueue((shared_ptr<thread::JobQueue::Item> *)&asJob);
+	s_cbJobQueue->Enqueue((SharedPtr<job::JobItem> *)&asJob);
 }

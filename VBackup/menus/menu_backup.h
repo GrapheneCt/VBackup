@@ -8,7 +8,7 @@ using namespace paf;
 namespace menu {
 	namespace backup {
 
-		class BackButtonCB : public ui::Widget::EventCallback
+		class BackButtonCB : public ui::EventCallback
 		{
 		public:
 

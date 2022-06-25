@@ -17,24 +17,24 @@
 using namespace paf;
 
 static menu::backup::Page *s_backupPageInstance = SCE_NULL;
-static graphics::Surface *s_lastIconTex = SCE_NULL;
+static graph::Surface *s_lastIconTex = SCE_NULL;
 
 static SceInt32 s_backupOverwriteAnswer = -1;
 static SceInt64 s_totalFileNum = 0;
 
 SceVoid menu::backup::BackButtonCB::BackButtonCBFun(SceInt32 eventId, paf::ui::Widget *self, SceInt32 a3, ScePVoid pUserData)
 {
-	Resource::Element searchParam;
+	rco::Element searchParam;
 	ui::Widget *button = SCE_NULL;
 	ui::Widget *topText = SCE_NULL;
 	wstring text16;
 
 	if (s_backupPageInstance->backupThread && !s_backupPageInstance->backupThread->IsCanceled()) {
 		searchParam.hash = VBUtils::GetHash("button_main_backup_cancel");
-		button = g_root->GetChildByHash(&searchParam, 0);
+		button = g_root->GetChild(&searchParam, 0);
 
 		searchParam.hash = VBUtils::GetHash("text_main_backup_top");
-		topText = g_root->GetChildByHash(&searchParam, 0);
+		topText = g_root->GetChild(&searchParam, 0);
 
 		text16 = VBUtils::GetString("msg_wait");
 		topText->SetLabel(&text16);
@@ -72,17 +72,17 @@ SceInt32 menu::backup::BackupThread::vshIoMount(SceInt32 id, const char *path, S
 
 SceInt32 menu::backup::BackupThread::BREventCallback(SceInt32 event, SceInt32 status, SceInt64 value, ScePVoid data, ScePVoid argp)
 {
-	Resource::Element searchParam;
+	rco::Element searchParam;
 	wstring text16;
 	wstring *ptext16 = SCE_NULL;
 	ui::Widget *bottomText = SCE_NULL;
 	ui::Widget *button = SCE_NULL;
 
 	searchParam.hash = VBUtils::GetHash("text_main_backup_bottom");
-	bottomText = g_root->GetChildByHash(&searchParam, 0);
+	bottomText = g_root->GetChild(&searchParam, 0);
 
 	searchParam.hash = VBUtils::GetHash("button_main_backup_cancel");
-	button = g_root->GetChildByHash(&searchParam, 0);
+	button = g_root->GetChild(&searchParam, 0);
 
 	text16 = L"";
 
@@ -102,8 +102,7 @@ SceInt32 menu::backup::BackupThread::BREventCallback(SceInt32 event, SceInt32 st
 	case BR_EVENT_NOTICE_CONT_COPY:
 		if (status == BR_STATUS_BEGIN) {
 			text16 = VBUtils::GetString("msg_processing");
-			ptext16 = SCE_NULL;
-			ptext16 = wstring::CharToNewWString((char *)data, ptext16);
+			ptext16 = ccc::UTF8toUTF16WithAlloc((char *)data);
 			text16 += *ptext16;
 			delete ptext16;
 		}
@@ -124,36 +123,36 @@ SceInt32 menu::backup::BackupThread::BREventCallback(SceInt32 event, SceInt32 st
 SceVoid menu::backup::BackupThread::UIResetTask(ScePVoid pUserData)
 {
 	wstring text16;
-	Resource::Element searchParam;
+	rco::Element searchParam;
 	ui::Widget *topText = SCE_NULL;
 	ui::BusyIndicator *indicator = SCE_NULL;
 	ui::Widget *button = SCE_NULL;
 
 	searchParam.hash = VBUtils::GetHash("text_main_backup_top");
-	topText = g_root->GetChildByHash(&searchParam, 0);
+	topText = g_root->GetChild(&searchParam, 0);
 
 	searchParam.hash = VBUtils::GetHash("busyindicator_main_backup_progress");
-	indicator = (ui::BusyIndicator *)g_root->GetChildByHash(&searchParam, 0);
+	indicator = (ui::BusyIndicator *)g_root->GetChild(&searchParam, 0);
 
 	searchParam.hash = VBUtils::GetHash("button_main_backup_cancel");
-	button = g_root->GetChildByHash(&searchParam, 0);
+	button = g_root->GetChild(&searchParam, 0);
 
 	indicator->Stop();
 	text16 = VBUtils::GetString("msg_ok");
 	button->SetLabel(&text16);
-	text16.Clear();
+	text16.clear();
 	text16 = VBUtils::GetString("msg_completed");
 	topText->SetLabel(&text16);
 	button->Enable(SCE_TRUE);
 
-	common::Utils::RemoveMainThreadTask(UIResetTask, SCE_NULL);
+	task::Unregister(UIResetTask, SCE_NULL);
 }
 
 SceVoid menu::backup::BackupThread::EntryFunction()
 {
 	SceInt32 res = -1;
 	SceBool grwMounted = SCE_FALSE;
-	Resource::Element searchParam;
+	rco::Element searchParam;
 	string text8;
 	string *ptext8 = SCE_NULL;
 	wstring text16;
@@ -162,26 +161,26 @@ SceVoid menu::backup::BackupThread::EntryFunction()
 	ui::BusyIndicator *indicator = SCE_NULL;
 	ui::Widget *icon = SCE_NULL;
 	ui::Widget *button = SCE_NULL;
-	shared_ptr<LocalFile> fres;
-	graphics::Surface *tex = SCE_NULL;
-	graphics::Surface *oldTex = SCE_NULL;
+	SharedPtr<LocalFile> fres;
+	graph::Surface *tex = SCE_NULL;
+	graph::Surface *oldTex = SCE_NULL;
 
 	searchParam.hash = VBUtils::GetHash("text_main_backup_top");
-	topText = g_root->GetChildByHash(&searchParam, 0);
+	topText = g_root->GetChild(&searchParam, 0);
 
 	searchParam.hash = VBUtils::GetHash("text_main_backup_bottom");
-	bottomText = g_root->GetChildByHash(&searchParam, 0);
+	bottomText = g_root->GetChild(&searchParam, 0);
 
 	searchParam.hash = VBUtils::GetHash("busyindicator_main_backup_progress");
-	indicator = (ui::BusyIndicator *)g_root->GetChildByHash(&searchParam, 0);
+	indicator = (ui::BusyIndicator *)g_root->GetChild(&searchParam, 0);
 
 	searchParam.hash = VBUtils::GetHash("app_icon_simple_main_backup_icon");
-	icon = g_root->GetChildByHash(&searchParam, 0);
+	icon = g_root->GetChild(&searchParam, 0);
 
 	searchParam.hash = VBUtils::GetHash("button_main_backup_cancel");
-	button = g_root->GetChildByHash(&searchParam, 0);
+	button = g_root->GetChild(&searchParam, 0);
 
-	text16.Clear();
+	text16.clear();
 
 	thread::s_mainThreadMutex.Lock();
 	indicator->Start();
@@ -206,8 +205,8 @@ SceVoid menu::backup::BackupThread::EntryFunction()
 		if (IsCanceled())
 			break;
 
-		text8.Clear();
-		text16.Clear();
+		text8.clear();
+		text16.clear();
 		
 		if (g_currentPagemode == menu::main::Pagemode_Backup) {
 			text16 = VBUtils::GetString("msg_backup_progress");
@@ -221,7 +220,7 @@ SceVoid menu::backup::BackupThread::EntryFunction()
 		topText->SetLabel(&text16);
 		thread::s_mainThreadMutex.Unlock();
 
-		text16.Clear();
+		text16.clear();
 		text16 = VBUtils::GetString("msg_wait");
 
 		thread::s_mainThreadMutex.Lock();
@@ -229,7 +228,7 @@ SceVoid menu::backup::BackupThread::EntryFunction()
 		thread::s_mainThreadMutex.Unlock();
 
 		// Load icon0 texture
-		text8.Clear();
+		text8.clear();
 		if (g_currentPagemode == menu::main::Pagemode_Backup) {
 			text8 = "ur0:appmeta/";
 			text8 += g_backupEntryList[i]->name->string + "/icon0.png";
@@ -239,23 +238,23 @@ SceVoid menu::backup::BackupThread::EntryFunction()
 		}
 		
 		thread::s_mainThreadMutex.Lock();
-		icon->SetTextureBase(&g_defaultTex);
+		icon->SetSurfaceBase(&g_defaultTex);
 		thread::s_mainThreadMutex.Unlock();
 		if (tex)
 			delete tex;
 
 		tex = SCE_NULL;
 
-		LocalFile::Open(&fres, text8.data, SCE_O_RDONLY, 0, &res);
+		fres = LocalFile::Open(text8.c_str(), SCE_O_RDONLY, 0, &res);
 
 		if (res == SCE_OK) {
 
-			graphics::Surface::CreateFromFile(&tex, g_vbPlugin->memoryPool, &fres);
+			graph::Surface::Create(&tex, g_vbPlugin->memoryPool, (SharedPtr<File>*)&fres);
 
 			if (tex) {
-				tex->IncrementRefCount();
+				tex->AddRef();
 				thread::s_mainThreadMutex.Lock();
-				icon->SetTextureBase(&tex);
+				icon->SetSurfaceBase(&tex);
 				thread::s_mainThreadMutex.Unlock();
 				s_lastIconTex = tex;
 			}
@@ -263,8 +262,7 @@ SceVoid menu::backup::BackupThread::EntryFunction()
 			fres.reset();
 		}
 		
-		ptext8 = SCE_NULL;
-		ptext8 = string::WCharToNewString(VBUtils::GetStringWithNum("msg_option_backup_device_", menu::settings::Settings::GetInstance()->backup_device), ptext8);
+		ptext8 = ccc::UTF16toUTF8WithAlloc(VBUtils::GetStringWithNum("msg_option_backup_device_", menu::settings::Settings::GetInstance()->backup_device));
 			
 		if (g_currentPagemode == menu::main::Pagemode_Backup) {
 
@@ -272,7 +270,7 @@ SceVoid menu::backup::BackupThread::EntryFunction()
 			button->Enable(SCE_TRUE);
 
 			SCE_DBG_LOG_TRACE("Backup begin:\nBackup path: %s\nTitleID: %s\nSavedata only: %d\n\n", ptext8->data, g_backupEntryList[i]->name->string.data, savedataOnly);
-			res = do_backup(ptext8->data, g_backupEntryList[i]->name->string.data, savedataOnly, menu::settings::Settings::GetInstance()->compression);
+			res = do_backup(ptext8->c_str(), g_backupEntryList[i]->name->string.c_str(), savedataOnly, menu::settings::Settings::GetInstance()->compression);
 			SCE_DBG_LOG_TRACE("Backup end: 0x%X\n", res);
 
 			if (res == SCE_ERROR_ERRNO_EEXIST) {
@@ -296,13 +294,13 @@ SceVoid menu::backup::BackupThread::EntryFunction()
 				}
 				else if (s_backupOverwriteAnswer == 1) {
 					s_backupOverwriteAnswer = -1;
-					do_delete_backup(ptext8->data, g_backupEntryList[i]->name->string.data);
-					res = do_backup(ptext8->data, g_backupEntryList[i]->name->string.data, savedataOnly, menu::settings::Settings::GetInstance()->compression);
+					do_delete_backup(ptext8->c_str(), g_backupEntryList[i]->name->string.c_str());
+					res = do_backup(ptext8->c_str(), g_backupEntryList[i]->name->string.c_str(), savedataOnly, menu::settings::Settings::GetInstance()->compression);
 					SCE_DBG_LOG_TRACE("Backup end: 0x%X\n", res);
 				}
 			}
 			else if (res == SCE_ERROR_ERRNO_EINTR) {
-				do_delete_backup(ptext8->data, g_backupEntryList[i]->name->string.data);
+				do_delete_backup(ptext8->c_str(), g_backupEntryList[i]->name->string.c_str());
 				delete ptext8;
 				break;
 			}
@@ -315,7 +313,7 @@ SceVoid menu::backup::BackupThread::EntryFunction()
 					VBUtils::SetPowerTickTask(SCE_TRUE);
 				}
 				else if (res == SCE_ERROR_ERRNO_EINTR) {
-					do_delete_backup(ptext8->data, g_backupEntryList[i]->name->string.data);
+					do_delete_backup(ptext8->c_str(), g_backupEntryList[i]->name->string.c_str());
 					delete ptext8;
 					break;
 				}
@@ -332,13 +330,13 @@ SceVoid menu::backup::BackupThread::EntryFunction()
 		else if (g_currentPagemode == menu::main::Pagemode_Restore) {
 
 			*ptext8 += "/";
-			*ptext8 += g_backupEntryList[i]->name->string.data;
+			*ptext8 += g_backupEntryList[i]->name->string.c_str();
 
-			text8.Clear();
+			text8.clear();
 			text8 = "ux0:app/";
-			text8 += g_backupEntryList[i]->name->string.data;
+			text8 += g_backupEntryList[i]->name->string.c_str();
 
-			if (io::Misc::Exists(text8.data)) {
+			if (LocalFile::Exists(text8.c_str())) {
 				s_backupOverwriteAnswer = -1;
 				Dialog::OpenYesNo(
 					g_vbPlugin,
@@ -355,7 +353,7 @@ SceVoid menu::backup::BackupThread::EntryFunction()
 			}
 
 			SCE_DBG_LOG_TRACE("Restore begin:\nRestore path: %s\n\n", ptext8->data);
-			res = do_restore(ptext8->data);
+			res = do_restore(ptext8->c_str());
 			SCE_DBG_LOG_TRACE("Restore end: 0x%X\n", res);
 
 			if (res < 0) {
@@ -379,7 +377,7 @@ SceVoid menu::backup::BackupThread::EntryFunction()
 	if (g_backupEntryList)
 		sce_paf_free(g_backupEntryList);
 
-	common::Utils::AddMainThreadTask(UIResetTask, SCE_NULL);
+	task::Register(UIResetTask, SCE_NULL);
 
 	VBUtils::SetPowerTickTask(SCE_FALSE);
 
@@ -392,13 +390,13 @@ SceVoid menu::backup::BackupThread::EntryFunction()
 
 menu::backup::Page::Page(SceBool savedataOnly)
 {
-	Resource::Element searchParam;
+	rco::Element searchParam;
 	Plugin::TemplateInitParam tmpParam;
 	ui::Widget *commonWidget;
 	backupThread = SCE_NULL;
 
 	searchParam.hash = VBUtils::GetHash("plane_main_backup_bg");
-	commonWidget = g_root->GetChildByHash(&searchParam, 0);
+	commonWidget = g_root->GetChild(&searchParam, 0);
 
 	if (!commonWidget) {
 
@@ -408,18 +406,18 @@ menu::backup::Page::Page(SceBool savedataOnly)
 		auto buttonCB = new menu::backup::BackButtonCB();
 
 		searchParam.hash = VBUtils::GetHash("button_main_backup_cancel");
-		commonWidget = g_root->GetChildByHash(&searchParam, 0);
-		commonWidget->RegisterEventCallback(ui::Widget::EventMain_Decide, buttonCB, 0);
+		commonWidget = g_root->GetChild(&searchParam, 0);
+		commonWidget->RegisterEventCallback(ui::EventMain_Decide, buttonCB, 0);
 
 		searchParam.hash = VBUtils::GetHash("plane_main_backup_bg");
-		commonWidget = g_root->GetChildByHash(&searchParam, 0);
+		commonWidget = g_root->GetChild(&searchParam, 0);
 	}
 
-	commonWidget->PlayAnimation(0.0f, ui::Widget::Animation_SlideFromBottom1);
+	commonWidget->PlayEffect(0.0f, effect::EffectType_SlideFromBottom1);
 	if (commonWidget->animationStatus & 0x80)
 		commonWidget->animationStatus &= ~0x80;
 
-	thread::Thread::Opt opt;
+	thread::Thread::Option opt;
 	opt.attr = 0;
 	opt.cpuAffinityMask = SCE_KERNEL_CPU_MASK_USER_2;
 	opt.stackMemoryType = SCE_KERNEL_MEMBLOCK_TYPE_USER_RW;
@@ -431,7 +429,7 @@ menu::backup::Page::Page(SceBool savedataOnly)
 
 menu::backup::Page::~Page()
 {
-	Resource::Element searchParam;
+	rco::Element searchParam;
 	ui::Widget *commonWidget;
 
 	if (backupThread) {
@@ -442,36 +440,36 @@ menu::backup::Page::~Page()
 
 	if (s_lastIconTex) {
 		searchParam.hash = VBUtils::GetHash("app_icon_simple_main_backup_icon");
-		commonWidget = g_root->GetChildByHash(&searchParam, 0);
+		commonWidget = g_root->GetChild(&searchParam, 0);
 
-		commonWidget->SetTextureBase(&g_defaultTex);
+		commonWidget->SetSurfaceBase(&g_defaultTex);
 		delete s_lastIconTex;
 		s_lastIconTex = SCE_NULL;
 	}
 
 	searchParam.hash = VBUtils::GetHash("plane_main_backup_bg");
-	commonWidget = g_root->GetChildByHash(&searchParam, 0);
+	commonWidget = g_root->GetChild(&searchParam, 0);
 
-	commonWidget->PlayAnimationReverse(0.0f, ui::Widget::Animation_SlideFromBottom1);
+	commonWidget->PlayEffectReverse(0.0f, effect::EffectType_SlideFromBottom1);
 }
 
 SceVoid menu::backup::Page::Create(SceBool savedataOnly)
 {
-	Resource::Element searchParam;
+	rco::Element searchParam;
 	ui::Widget *commonWidget;
 
 	if (!s_backupPageInstance) {
 
 		if (g_currentDispFilePage)
-			g_currentDispFilePage->root->PlayAnimationReverse(0.0f, ui::Widget::Animation_SlideFromBottom1);
+			g_currentDispFilePage->root->PlayEffectReverse(0.0f, effect::EffectType_SlideFromBottom1);
 
 		searchParam.hash = VBUtils::GetHash("button_common_settings");
-		commonWidget = g_rootPage->GetChildByHash(&searchParam, 0);
-		commonWidget->PlayAnimationReverse(0.0f, ui::Widget::Animation_Reset);
+		commonWidget = g_rootPage->GetChild(&searchParam, 0);
+		commonWidget->PlayEffectReverse(0.0f, effect::EffectType_Reset);
 
 		searchParam.hash = VBUtils::GetHash("button_common_back");
-		commonWidget = g_rootPage->GetChildByHash(&searchParam, 0);
-		commonWidget->PlayAnimationReverse(0.0f, ui::Widget::Animation_Reset);
+		commonWidget = g_rootPage->GetChild(&searchParam, 0);
+		commonWidget->PlayEffectReverse(0.0f, effect::EffectType_Reset);
 
 		menu::search::Page::Destroy();
 
@@ -481,24 +479,24 @@ SceVoid menu::backup::Page::Create(SceBool savedataOnly)
 
 SceVoid menu::backup::Page::Destroy()
 {
-	Resource::Element searchParam;
+	rco::Element searchParam;
 	ui::Widget *commonWidget;
 
 	if (s_backupPageInstance) {
 
 		if (g_currentDispFilePage) {
-			g_currentDispFilePage->root->PlayAnimation(0.0f, ui::Widget::Animation_SlideFromBottom1);
+			g_currentDispFilePage->root->PlayEffect(0.0f, effect::EffectType_SlideFromBottom1);
 			if (g_currentDispFilePage->root->animationStatus & 0x80)
 				g_currentDispFilePage->root->animationStatus &= ~0x80;
 		}
 
 		searchParam.hash = VBUtils::GetHash("button_common_settings");
-		commonWidget = g_rootPage->GetChildByHash(&searchParam, 0);
-		commonWidget->PlayAnimation(0.0f, ui::Widget::Animation_Reset);
+		commonWidget = g_rootPage->GetChild(&searchParam, 0);
+		commonWidget->PlayEffect(0.0f, effect::EffectType_Reset);
 
 		searchParam.hash = VBUtils::GetHash("button_common_back");
-		commonWidget = g_rootPage->GetChildByHash(&searchParam, 0);
-		commonWidget->PlayAnimation(0.0f, ui::Widget::Animation_Reset);
+		commonWidget = g_rootPage->GetChild(&searchParam, 0);
+		commonWidget->PlayEffect(0.0f, effect::EffectType_Reset);
 
 		if (g_currentDispFilePage) {
 			menu::search::Page::Create();

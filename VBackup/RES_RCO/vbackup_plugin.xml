@@ -160,7 +160,7 @@
 	<locale origsize="3264" src="RES_RCO_TMP\vbackup_locale_ja.xml.rcs.zlib" compress="on" id="ja" />
     <locale origsize="3856" src="RES_RCO_TMP\vbackup_locale_en.xml.rcs.zlib" compress="on" id="en" />
     <locale origsize="3856" src="RES_RCO_TMP\vbackup_locale_en.xml.rcs.zlib" compress="on" id="en-gb" />
-    <locale origsize="3856" src="RES_RCO_TMP\vbackup_locale_en.xml.rcs.zlib" compress="on" id="fr" />
+    <locale origsize="4224" src="RES_RCO_TMP\vbackup_locale_fr.xml.rcs.zlib" compress="on" id="fr" />
     <locale origsize="3856" src="RES_RCO_TMP\vbackup_locale_en.xml.rcs.zlib" compress="on" id="es" />
     <locale origsize="3856" src="RES_RCO_TMP\vbackup_locale_en.xml.rcs.zlib" compress="on" id="de" />
     <locale origsize="3856" src="RES_RCO_TMP\vbackup_locale_en.xml.rcs.zlib" compress="on" id="it" />

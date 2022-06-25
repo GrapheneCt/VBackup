@@ -18,7 +18,7 @@
 using namespace paf;
 
 Plugin *g_vbPlugin = SCE_NULL;
-graphics::Surface *g_defaultTex = SCE_NULL;
+graph::Surface *g_defaultTex = SCE_NULL;
 ui::Widget *g_rootPage = SCE_NULL;
 ui::Widget *g_root = SCE_NULL;
 ui::Widget *g_commonBusyInidcator = SCE_NULL;
@@ -74,35 +74,35 @@ SceVoid WarningDialogCB(Dialog::ButtonCode button, ScePVoid pUserData)
 	string *text8 = SCE_NULL;
 
 	if (button == Dialog::ButtonCode_No) {
-		Framework::s_frameworkInstance->ExitRenderingLoop();
+		s_frameworkInstance->ExitRenderingLoop();
 		return;
 	}
 
 #ifdef _DEBUG
-	//common::Utils::AddMainThreadTask(leakTestTask, SCE_NULL);
+	//task::Register(leakTestTask, SCE_NULL);
 #endif
 
 #ifndef _DEBUG
 	sceAppMgrDestroyOtherApp();
 #endif
 
-	text8 = string::WCharToNewString(VBUtils::GetStringWithNum("msg_option_backup_device_", menu::settings::Settings::GetInstance()->backup_device), text8);
-	if (!io::Misc::Exists(text8->data)) {
-		io::Misc::MkdirRWSYS(text8->data);
-		if (!io::Misc::Exists(text8->data)) {
+	text8 = ccc::UTF16toUTF8WithAlloc(VBUtils::GetStringWithNum("msg_option_backup_device_", menu::settings::Settings::GetInstance()->backup_device));
+	if (!LocalFile::Exists(text8->c_str())) {
+		Dir::Create(text8->c_str());
+		if (!LocalFile::Exists(text8->c_str())) {
 			menu::settings::Settings::GetInstance()->GetAppSetInstance()->SetInt("backup_device", 0);
 			menu::settings::Settings::GetInstance()->backup_device = 0;
 			delete text8;
 			text8 = SCE_NULL;
-			text8 = string::WCharToNewString(VBUtils::GetStringWithNum("msg_option_backup_device_", menu::settings::Settings::GetInstance()->backup_device), text8);
-			io::Misc::MkdirRWSYS(text8->data);
+			text8 = ccc::UTF16toUTF8WithAlloc(VBUtils::GetStringWithNum("msg_option_backup_device_", menu::settings::Settings::GetInstance()->backup_device));
+			Dir::Create(text8->c_str());
 		}
 	}
 }
 
 SceVoid pluginLoadCB(Plugin *plugin)
 {
-	Resource::Element searchParam;
+	rco::Element searchParam;
 	Plugin::PageInitParam rwiParam;
 	Plugin::TemplateInitParam tmpParam;
 
@@ -119,28 +119,28 @@ SceVoid pluginLoadCB(Plugin *plugin)
 	g_rootPage = g_vbPlugin->PageOpen(&searchParam, &rwiParam);
 
 	searchParam.hash = VBUtils::GetHash("plane_common_bg");
-	g_root = g_rootPage->GetChildByHash(&searchParam, 0);
+	g_root = g_rootPage->GetChild(&searchParam, 0);
 
 	searchParam.hash = VBUtils::GetHash("busyindicator_common");
-	g_commonBusyInidcator = (ui::BusyIndicator *)g_rootPage->GetChildByHash(&searchParam, 0);
+	g_commonBusyInidcator = (ui::BusyIndicator *)g_rootPage->GetChild(&searchParam, 0);
 
 	searchParam.hash = VBUtils::GetHash("_common_texture_transparent");
-	Plugin::LoadTexture(&g_defaultTex, g_vbPlugin, &searchParam);
+	Plugin::GetTexture(&g_defaultTex, g_vbPlugin, &searchParam);
 
 	menu::main::Page::Create();
 
 	menu::list::Page::Init();
 
 	searchParam.hash = VBUtils::GetHash("button_common_settings");
-	ui::Widget *settingsButton = g_rootPage->GetChildByHash(&searchParam, 0);
+	ui::Widget *settingsButton = g_rootPage->GetChild(&searchParam, 0);
 	auto settingsButtonCB = new menu::settings::SettingsButtonCB();
-	settingsButton->RegisterEventCallback(ui::Widget::EventMain_Decide, settingsButtonCB, 0);
+	settingsButton->RegisterEventCallback(ui::EventMain_Decide, settingsButtonCB, 0);
 
 	searchParam.hash = VBUtils::GetHash("button_common_back");
-	ui::Widget *backButton = g_rootPage->GetChildByHash(&searchParam, 0);
+	ui::Widget *backButton = g_rootPage->GetChild(&searchParam, 0);
 	auto backButtonCB = new menu::list::BackButtonCB();
-	backButton->RegisterEventCallback(ui::Widget::EventMain_Decide, backButtonCB, 0);
-	backButton->PlayAnimationReverse(0.0f, ui::Widget::Animation_Reset);
+	backButton->RegisterEventCallback(ui::EventMain_Decide, backButtonCB, 0);
+	backButton->PlayEffectReverse(0.0f, effect::EffectType_Reset);
 
 	sceShellUtilUnlock(SCE_SHELL_UTIL_LOCK_TYPE_PS_BTN);
 
@@ -186,11 +186,11 @@ int main(SceSize args, void *argp)
 	fwParam.defaultSurfacePoolSize = SCE_KERNEL_16MiB;
 	fwParam.textSurfaceCacheSize = SCE_KERNEL_2MiB;
 
-	Framework *fw = new Framework(&fwParam);
+	Framework *fw = new Framework(fwParam);
 
 	fw->LoadCommonResourceAsync();
 
-	Framework::PluginInitParam pluginParam;
+	Plugin::InitParam pluginParam;
 
 	pluginParam.pluginName = "vbackup_plugin";
 	pluginParam.resourcePath = "app0:vbackup_plugin.rco";

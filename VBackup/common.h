@@ -10,7 +10,7 @@
 #include "menus/menu_settings.h"
 
 extern paf::Plugin *g_vbPlugin;
-extern graphics::Surface *g_defaultTex;
+extern graph::Surface *g_defaultTex;
 extern paf::ui::Widget *g_rootPage;
 extern paf::ui::Widget *g_root;
 extern paf::ui::Widget *g_commonBusyInidcator;

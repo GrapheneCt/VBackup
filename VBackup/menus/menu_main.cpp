@@ -29,8 +29,8 @@ SceVoid menu::main::ButtonCB::ButtonCBFun(SceInt32 eventId, ui::Widget *self, Sc
 		g_currentPagemode = Pagemode_Restore;
 		g_backupFromList = SCE_FALSE;
 
-		text8 = string::WCharToNewString(VBUtils::GetStringWithNum("msg_option_backup_device_", menu::settings::Settings::GetInstance()->backup_device), text8);
-		new menu::list::Page(text8->data, SCE_NULL);
+		text8 = ccc::UTF16toUTF8WithAlloc(VBUtils::GetStringWithNum("msg_option_backup_device_", menu::settings::Settings::GetInstance()->backup_device));
+		new menu::list::Page(text8->c_str(), SCE_NULL);
 		menu::search::Page::Create();
 		break;
 	case ButtonHash_BackupList:
@@ -52,12 +52,12 @@ SceVoid menu::main::ButtonCB::ButtonCBFun(SceInt32 eventId, ui::Widget *self, Sc
 
 menu::main::Page::Page()
 {
-	Resource::Element searchParam;
+	rco::Element searchParam;
 	Plugin::TemplateInitParam tmpParam;
 	ui::Widget *commonWidget;
 
 	searchParam.hash = VBUtils::GetHash("plane_main_action_bg");
-	commonWidget = g_root->GetChildByHash(&searchParam, 0);
+	commonWidget = g_root->GetChild(&searchParam, 0);
 
 	if (!commonWidget) {
 
@@ -67,29 +67,29 @@ menu::main::Page::Page()
 		auto buttonCB = new menu::main::ButtonCB();
 
 		searchParam.hash = ButtonHash_Backup;
-		commonWidget = g_root->GetChildByHash(&searchParam, 0);
-		commonWidget->RegisterEventCallback(ui::Widget::EventMain_Decide, buttonCB, 0);
+		commonWidget = g_root->GetChild(&searchParam, 0);
+		commonWidget->RegisterEventCallback(ui::EventMain_Decide, buttonCB, 0);
 
 		searchParam.hash = ButtonHash_Restore;
-		commonWidget = g_root->GetChildByHash(&searchParam, 0);
-		commonWidget->RegisterEventCallback(ui::Widget::EventMain_Decide, buttonCB, 0);
+		commonWidget = g_root->GetChild(&searchParam, 0);
+		commonWidget->RegisterEventCallback(ui::EventMain_Decide, buttonCB, 0);
 
 		searchParam.hash = ButtonHash_BackupList;
-		commonWidget = g_root->GetChildByHash(&searchParam, 0);
-		commonWidget->RegisterEventCallback(ui::Widget::EventMain_Decide, buttonCB, 0);
+		commonWidget = g_root->GetChild(&searchParam, 0);
+		commonWidget->RegisterEventCallback(ui::EventMain_Decide, buttonCB, 0);
 
 		searchParam.hash = VBUtils::GetHash("plane_main_action_bg");
-		commonWidget = g_root->GetChildByHash(&searchParam, 0);
+		commonWidget = g_root->GetChild(&searchParam, 0);
 	}
 
-	commonWidget->PlayAnimation(0.0f, ui::Widget::Animation_SlideFromBottom1);
+	commonWidget->PlayEffect(0.0f, effect::EffectType_SlideFromBottom1);
 	if (commonWidget->animationStatus & 0x80)
 		commonWidget->animationStatus &= ~0x80;
 
 	searchParam.hash = VBUtils::GetHash("menu_button_action_backup_list");
-	commonWidget = g_root->GetChildByHash(&searchParam, 0);
+	commonWidget = g_root->GetChild(&searchParam, 0);
 
-	if (io::Misc::Exists(BACKUP_LIST_PATH))
+	if (LocalFile::Exists(BACKUP_LIST_PATH))
 		commonWidget->Enable(0);
 	else
 		commonWidget->Disable(0);
@@ -97,13 +97,13 @@ menu::main::Page::Page()
 
 menu::main::Page::~Page()
 {
-	Resource::Element searchParam;
+	rco::Element searchParam;
 	ui::Widget *commonWidget;
 
 	searchParam.hash = VBUtils::GetHash("plane_main_action_bg");
-	commonWidget = g_root->GetChildByHash(&searchParam, 0);
+	commonWidget = g_root->GetChild(&searchParam, 0);
 
-	commonWidget->PlayAnimationReverse(0.0f, ui::Widget::Animation_SlideFromBottom1);
+	commonWidget->PlayEffectReverse(0.0f, effect::EffectType_SlideFromBottom1);
 }
 
 SceVoid menu::main::Page::Create()

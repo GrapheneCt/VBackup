@@ -61,9 +61,9 @@ namespace menu {
 
 			static SceVoid CBTerm();
 
-			static SceWChar16 *CBGetString(const char *elementId);
+			static wchar_t *CBGetString(const char *elementId);
 
-			static SceInt32 CBGetTex(graphics::Surface **surf, const char *elementId);
+			static SceInt32 CBGetTex(graph::Surface **surf, const char *elementId);
 
 			sce::AppSettings *appSet;
 			SceBool settingsReset;
@@ -75,7 +75,7 @@ namespace menu {
 			const SceInt32 k_defCompression = 0;
 		};
 
-		class SettingsButtonCB : public ui::Widget::EventCallback
+		class SettingsButtonCB : public ui::EventCallback
 		{
 		public:
 

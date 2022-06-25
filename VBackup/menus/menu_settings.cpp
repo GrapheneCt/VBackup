@@ -24,7 +24,7 @@ using namespace sce;
 static SceBool s_needBackupCwdReload = SCE_FALSE;
 static SceBool s_needPageReload = SCE_FALSE;
 static SceUInt32 s_callerMode = 0;
-static SceWChar16 *s_verinfo = SCE_NULL;
+static const wchar_t *s_verinfo = SCE_NULL;
 
 static menu::settings::Settings *s_settingsInstance = SCE_NULL;
 
@@ -32,8 +32,8 @@ menu::settings::Settings::Settings()
 {
 	SceInt32 ret;
 	SceSize fsize = 0;
-	char *fmime = SCE_NULL;
-	Framework::PluginInitParam pluginParam;
+	const char *fmime = SCE_NULL;
+	Plugin::InitParam pluginParam;
 	AppSettings::InitParam sparam;
 
 	settingsReset = SCE_FALSE;
@@ -50,9 +50,9 @@ menu::settings::Settings::Settings()
 	pluginParam.pluginPath = "vs0:vsh/common/app_settings.suprx";
 	pluginParam.unk_58 = 0x96;
 
-	Framework::s_frameworkInstance->LoadPlugin(&pluginParam);
+	s_frameworkInstance->LoadPlugin(&pluginParam);
 
-	Resource::LookupFiletable((shared_ptr<MemFile>*)&sparam.xmlFile, g_vbPlugin->resource, VBUtils::GetHash("file_vbackup_settings"), &fsize, &fmime);
+	sparam.xmlFile = g_vbPlugin->resource->GetFile(VBUtils::GetHash("file_vbackup_settings"), &fsize, &fmime);
 
 	sparam.allocCB = sce_paf_malloc;
 	sparam.freeCB = sce_paf_free;
@@ -92,8 +92,8 @@ menu::settings::Settings::Settings()
 	*verinfo = L"RELEASE ";
 #endif
 	*verinfo += WIDE(__DATE__);
-	*verinfo += L" v 1.01 core rev. 8";
-	s_verinfo = (SceWChar16 *)verinfo->data;
+	*verinfo += L" v 1.03 core rev. 8";
+	s_verinfo = verinfo->c_str();
 
 	s_settingsInstance = this;
 }
@@ -177,10 +177,10 @@ SceInt32 menu::settings::Settings::CBValueChange(const char *elementId, const ch
 		GetInstance()->sort = value;
 		break;
 	case Hash_BackupDevice:
-		text8 = string::WCharToNewString(VBUtils::GetStringWithNum("msg_option_backup_device_", value), text8);
-		if (!io::Misc::Exists(text8->data))
-			io::Misc::MkdirRWSYS(text8->data);
-		if (io::Misc::Exists(text8->data)) {
+		text8 = ccc::UTF16toUTF8WithAlloc(VBUtils::GetStringWithNum("msg_option_backup_device_", value));
+		if (!LocalFile::Exists(text8->c_str()))
+			Dir::Create(text8->c_str());
+		if (LocalFile::Exists(text8->c_str())) {
 			if (g_currentPagemode == menu::main::Pagemode_Restore) {
 				s_needPageReload = SCE_TRUE;
 				s_needBackupCwdReload = SCE_TRUE;
@@ -206,7 +206,7 @@ SceInt32 menu::settings::Settings::CBValueChange(const char *elementId, const ch
 
 
 	if (text8) {
-		text8->Clear();
+		text8->clear();
 		delete text8;
 	}
 
@@ -220,7 +220,7 @@ SceInt32 menu::settings::Settings::CBValueChange2(const char *elementId, const c
 
 SceVoid menu::settings::Settings::CBTerm()
 {
-	Resource::Element searchParam;
+	rco::Element searchParam;
 	string *text8 = SCE_NULL;
 	SceInt32 value = 0;
 
@@ -245,17 +245,17 @@ SceVoid menu::settings::Settings::CBTerm()
 			}
 
 			GetAppSetInstance()->GetInt("backup_device", &value, 0);
-			text8 = string::WCharToNewString(VBUtils::GetStringWithNum("msg_option_backup_device_", value), text8);
+			text8 = ccc::UTF16toUTF8WithAlloc(VBUtils::GetStringWithNum("msg_option_backup_device_", value));
 
-			menu::list::Page *newPage = new menu::list::Page(text8->data, SCE_NULL);
+			menu::list::Page *newPage = new menu::list::Page(text8->c_str(), SCE_NULL);
 
-			text8->Clear();
+			text8->clear();
 			delete text8;
 
 			s_needBackupCwdReload = SCE_FALSE;
 		}
 		else {
-			text8 = new string(g_currentDispFilePage->cwd->data);
+			text8 = new string(g_currentDispFilePage->cwd->c_str());
 
 			// This condition is VBackup-specific
 			if (!g_currentDispFilePage->prev) {
@@ -268,36 +268,36 @@ SceVoid menu::settings::Settings::CBTerm()
 				delete tmpCurr;
 			}
 
-			menu::list::Page *newPage = new menu::list::Page(text8->data, SCE_NULL);
+			menu::list::Page *newPage = new menu::list::Page(text8->c_str(), SCE_NULL);
 
-			text8->Clear();
+			text8->clear();
 			delete text8;
 		}
 
 		s_needPageReload = SCE_FALSE;
 	}
 
-	g_rootPage->PlayAnimation(0.0f, ui::Widget::Animation_Fadein1);
+	g_rootPage->PlayEffect(0.0f, effect::EffectType_Fadein1);
 }
 
-SceWChar16 *menu::settings::Settings::CBGetString(const char *elementId)
+wchar_t *menu::settings::Settings::CBGetString(const char *elementId)
 {
-	Resource::Element searchParam;
-	SceWChar16 *res = SCE_NULL;
+	rco::Element searchParam;
+	wchar_t *res = SCE_NULL;
 
 	searchParam.hash = VBUtils::GetHash(elementId);
 
-	res = g_vbPlugin->GetString(&searchParam);
+	res = g_vbPlugin->GetWString(&searchParam);
 
 	if (res[0] == 0) {
 		if (!sce_paf_strcmp(elementId, "msg_verinfo"))
-			return s_verinfo;
+			return (wchar_t *)s_verinfo;
 	}
 
 	return res;
 }
 
-SceInt32 menu::settings::Settings::CBGetTex(graphics::Surface **surf, const char *elementId)
+SceInt32 menu::settings::Settings::CBGetTex(graph::Surface **surf, const char *elementId)
 {
 	return SCE_OK;
 }
@@ -314,7 +314,7 @@ AppSettings *menu::settings::Settings::GetAppSetInstance()
 
 SceVoid menu::settings::SettingsButtonCB::SettingsButtonCBFun(SceInt32 eventId, paf::ui::Widget *self, SceInt32 a3, ScePVoid pUserData)
 {
-	Resource::Element searchParam;
+	rco::Element searchParam;
 	SceUInt32 callerMode = 0;
 
 	if (pUserData)
@@ -322,5 +322,5 @@ SceVoid menu::settings::SettingsButtonCB::SettingsButtonCBFun(SceInt32 eventId, 
 
 	menu::settings::Settings::GetInstance()->Open(callerMode);
 
-	g_rootPage->PlayAnimationReverse(0.0f, ui::Widget::Animation_Fadein1);
+	g_rootPage->PlayEffectReverse(0.0f, effect::EffectType_Fadein1);
 }

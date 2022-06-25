@@ -4,7 +4,7 @@
 namespace menu {
 	namespace search {
 
-		class ButtonCB : public ui::Widget::EventCallback
+		class ButtonCB : public ui::EventCallback
 		{
 		public:
 

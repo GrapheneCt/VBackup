@@ -17,11 +17,11 @@ class VBUtils
 {
 public:
 
-	class AsyncEnqueue : public paf::thread::JobQueue::Item
+	class AsyncEnqueue : public job::JobItem
 	{
 	public:
 
-		using thread::JobQueue::Item::Item;
+		using job::JobItem::JobItem;
 
 		typedef void(*FinishHandler)();
 
@@ -40,7 +40,7 @@ public:
 				finishHandler();
 		}
 
-		ui::Widget::EventCallback::EventHandler eventHandler;
+		ui::EventCallback::EventHandler eventHandler;
 		FinishHandler finishHandler;
 		SceInt32 eventId;
 		ui::Widget *self;
@@ -56,13 +56,11 @@ public:
 
 	static wchar_t *GetString(const char *name);
 
-	static SceInt32 Alphasort(const void *p1, const void *p2);
-
 	static SceVoid SetPowerTickTask(SceBool enable);
 
 	static SceVoid Exit();
 
-	static SceVoid RunCallbackAsJob(ui::Widget::EventCallback::EventHandler eventHandler, VBUtils::AsyncEnqueue::FinishHandler finishHandler, SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData);
+	static SceVoid RunCallbackAsJob(ui::EventCallback::EventHandler eventHandler, VBUtils::AsyncEnqueue::FinishHandler finishHandler, SceInt32 eventId, ui::Widget *self, SceInt32 a3, ScePVoid pUserData);
 
 private:
 

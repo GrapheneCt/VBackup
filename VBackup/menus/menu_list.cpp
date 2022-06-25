@@ -18,23 +18,23 @@ using namespace paf;
 
 SceVoid menu::list::BackButtonCB::BackButtonCBFun(SceInt32 eventId, paf::ui::Widget *self, SceInt32 a3, ScePVoid pUserData)
 {
-	Resource::Element searchParam;
+	rco::Element searchParam;
 	Page *tmpCurr = g_currentDispFilePage;
 	g_currentDispFilePage = g_currentDispFilePage->prev;
 	delete tmpCurr;
 
 	searchParam.hash = VBUtils::GetHash("button_common_back");
-	ui::Widget *backButton = g_rootPage->GetChildByHash(&searchParam, 0);
+	ui::Widget *backButton = g_rootPage->GetChild(&searchParam, 0);
 
 	// Disable back button if at root. In VBackup always disable
 	/*
 	if (!VBUtils::IsRootDevice(g_currentDispFilePage->cwd->data))
-		backButton->PlayAnimation(600.0f, ui::Widget::Animation_Reset);
+		backButton->PlayEffect(600.0f, effect::EffectType_Reset);
 	else
-		backButton->PlayAnimationReverse(0.0f, ui::Widget::Animation_Reset);
+		backButton->PlayEffectReverse(0.0f, effect::EffectType_Reset);
 	*/
 
-	backButton->PlayAnimationReverse(0.0f, ui::Widget::Animation_Reset);
+	backButton->PlayEffectReverse(0.0f, effect::EffectType_Reset);
 
 	menu::search::Page::Destroy();
 	menu::main::Page::Create();
@@ -65,12 +65,12 @@ SceVoid menu::list::ButtonCB::ButtonCBFun(SceInt32 eventId, paf::ui::Widget *sel
 SceVoid menu::list::EntryParserThread::EntryFunction()
 {
 	SceInt32 res = -1;
-	Resource::Element searchParam;
-	Resource::Element searchParamSubtext;
+	rco::Element searchParam;
+	rco::Element searchParamSubtext;
 	Plugin::TemplateInitParam tmpParam;
 	ui::Widget *subText = SCE_NULL;
-	shared_ptr<LocalFile> fres;
-	graphics::Surface *tex = SCE_NULL;
+	SharedPtr<LocalFile> fres;
+	graph::Surface *tex = SCE_NULL;
 	wstring wtitleName;
 	string appName;
 	string sfoPath;
@@ -87,10 +87,12 @@ SceVoid menu::list::EntryParserThread::EntryFunction()
 	Entry *lastEntry = SCE_NULL;
 
 	if (g_backupFromList) {
-		io::File list;
+		LocalFile list;
+		LocalFile::OpenArg oarg;
 
-		list.Open(BACKUP_LIST_PATH, SCE_O_RDONLY, 0);
-		SceSize listSize = list.GetSize();
+		oarg.filename = BACKUP_LIST_PATH;
+		list.Open(&oarg);
+		SceSize listSize = list.GetFileSize();
 		listBuffer = sce_paf_malloc(listSize);
 		list.Read(listBuffer, listSize);
 		list.Close();
@@ -105,7 +107,7 @@ SceVoid menu::list::EntryParserThread::EntryFunction()
 
 		// If in list mode skip unlisted entries
 		if (g_backupFromList) {
-			if (!sce_paf_strstr((char *)listBuffer, entry->name->string.data)) {
+			if (!sce_paf_strstr((char *)listBuffer, entry->name->string.c_str())) {
 				entry->type = Entry::Type_Unsupported;
 			}
 		}
@@ -117,32 +119,31 @@ SceVoid menu::list::EntryParserThread::EntryFunction()
 		}
 		
 		// Set titleid name
-		wtitleName.Clear();
+		wtitleName.clear();
 		wtitleName += entry->name->wstring;
 		
 		// Check if savedata-only
 		if (g_currentPagemode == menu::main::Pagemode_Restore) {
-			savedataOnlyPath.Clear();
+			savedataOnlyPath.clear();
 			savedataOnlyPath = *(page->cwd) + "/" + entry->name->string + "/savedata_only.flag";
-			if (io::Misc::Exists(savedataOnlyPath.data)) {
+			if (LocalFile::Exists(savedataOnlyPath.c_str())) {
 				wtitleName += L", ";
 				wtitleName += VBUtils::GetString("msg_backup_dialog_savedata_only");
 			}
 		}
 
 		// Create full app name from SFO
-		sfoPath.Clear();
+		sfoPath.clear();
 		sfoPath = *(page->cwd) + "/" + entry->name->string + "/sce_sys/param.sfo";
 		
 		sfo = SCE_NULL;
-		sfo = new SFO(sfoPath.data);
+		sfo = new SFO(sfoPath.c_str());
 		res = sfo->GetString("TITLE", &appName);
 		
-		for (char *currentPos; (currentPos = sce_paf_strchr(appName.data, '\n')) != SCE_NULL; *currentPos = ' ');
+		for (char *currentPos; (currentPos = sce_paf_strchr(appName.c_str(), '\n')) != SCE_NULL; *currentPos = ' ');
 
 		if (res == SCE_OK) {
-			wappName = SCE_NULL;
-			wappName = wstring::CharToNewWString(appName.data, wappName);
+			wappName = ccc::UTF8toUTF16WithAlloc(appName.c_str());
 		}
 		else {
 			wappName = new wstring();
@@ -151,7 +152,7 @@ SceVoid menu::list::EntryParserThread::EntryFunction()
 		}
 
 		if (page->key) {
-			if (!sce_paf_wcsstr(wappName->data, page->key->data) || !sce_paf_wcsstr(entry->name->wstring.data, page->key->data)) {
+			if (!sce_paf_wcsstr(wappName->c_str(), page->key->c_str()) || !sce_paf_wcsstr(entry->name->wstring.c_str(), page->key->c_str())) {
 				entry = entry->next;
 				continue;
 			}
@@ -161,10 +162,10 @@ SceVoid menu::list::EntryParserThread::EntryFunction()
 		g_vbPlugin->TemplateOpen(page->box, &searchParam, &tmpParam);
 		thread::s_mainThreadMutex.Unlock();
 
-		entry->button = (ui::ImageButton *)page->box->GetChildByNum(page->box->childNum - 1);
+		entry->button = (ui::ImageButton *)page->box->GetChild(page->box->childNum - 1);
 
 		// Load icon0 texture
-		iconPath.Clear();
+		iconPath.clear();
 		if (g_currentPagemode == menu::main::Pagemode_Backup) {
 			iconPath = "ur0:appmeta/";
 			iconPath += entry->name->string + "/icon0.png";
@@ -173,11 +174,11 @@ SceVoid menu::list::EntryParserThread::EntryFunction()
 			iconPath = *(page->cwd) + "/" + entry->name->string + "/sce_sys/icon0.png";
 		}
 
-		LocalFile::Open(&fres, iconPath.data, SCE_O_RDONLY, 0, &res);
+		fres = LocalFile::Open(iconPath.c_str(), SCE_O_RDONLY, 0, &res);
 
 		tex = SCE_NULL;
 		if (res == SCE_OK) {
-			graphics::Surface::CreateFromFile(&tex, g_vbPlugin->memoryPool, &fres);
+			graph::Surface::Create(&tex, g_vbPlugin->memoryPool, (SharedPtr<File>*)&fres);
 			tex->base.refCount = -1;
 
 			fres.reset();
@@ -190,14 +191,14 @@ SceVoid menu::list::EntryParserThread::EntryFunction()
 
 		thread::s_mainThreadMutex.Lock();
 		if (tex) {
-			entry->button->SetTextureBase(&tex);
+			entry->button->SetSurfaceBase(&tex);
 		}
 		entry->button->SetLabel(wappName);
-		subText = entry->button->GetChildByHash(&searchParamSubtext, 0);
+		subText = entry->button->GetChild(&searchParamSubtext, 0);
 		subText->SetLabel(&wtitleName);
 		if (entry->type == Entry::Type_Unsupported)
 			entry->button->Disable(0);
-		entry->button->RegisterEventCallback(ui::Widget::EventMain_Decide, entry->buttonCB, 0);
+		entry->button->RegisterEventCallback(ui::EventMain_Decide, entry->buttonCB, 0);
 		thread::s_mainThreadMutex.Unlock();
 		if (i == page->entryNum - 1)
 			lastEntry = entry;
@@ -216,22 +217,22 @@ SceVoid menu::list::EntryParserThread::EntryFunction()
 	
 	if (g_currentDispFilePage != SCE_NULL) {
 		if (g_currentDispFilePage->prev != SCE_NULL) {
-			g_currentDispFilePage->prev->root->PlayAnimationReverse(0.0f, ui::Widget::Animation_Reset);
+			g_currentDispFilePage->prev->root->PlayEffectReverse(0.0f, effect::EffectType_Reset);
 			if (g_currentDispFilePage->prev->root->animationStatus & 0x80)
 				g_currentDispFilePage->prev->root->animationStatus &= ~0x80;
 		}
-		g_currentDispFilePage->root->PlayAnimation(0.0f, ui::Widget::Animation_3D_SlideToBack1);
+		g_currentDispFilePage->root->PlayEffect(0.0f, effect::EffectType_3D_SlideToBack1);
 		if (g_currentDispFilePage->root->animationStatus & 0x80)
 			g_currentDispFilePage->root->animationStatus &= ~0x80;
 	}
-	page->root->PlayAnimation(-5000.0f, ui::Widget::Animation_3D_SlideFromFront);
+	page->root->PlayEffect(-5000.0f, effect::EffectType_3D_SlideFromFront);
 	if (page->root->animationStatus & 0x80)
 		page->root->animationStatus &= ~0x80;
 
 	Dialog::Close();
 
 	if (g_backupFromList)
-		common::Utils::AddMainThreadTask(menu::list::Page::ListBackupTask, page->entries);
+		task::Register(menu::list::Page::ListBackupTask, page->entries);
 
 	Cancel();
 }
@@ -257,7 +258,7 @@ SceVoid menu::list::Page::ListBackupTask(ScePVoid pUserData)
 	}
 
 	menu::backup::Page::BeginDialogCB(Dialog::ButtonCode_Button2, SCE_NULL);
-	common::Utils::RemoveMainThreadTask(ListBackupTask, pUserData);
+	task::Unregister(ListBackupTask, pUserData);
 }
 
 SceVoid menu::list::Page::Init()
@@ -272,7 +273,7 @@ SceVoid menu::list::Page::LoadCancelDialogCB(Dialog::ButtonCode button, ScePVoid
 
 menu::list::Page::Page(const char* path, const wchar_t *keyword)
 {
-	Resource::Element searchParam;
+	rco::Element searchParam;
 	Plugin::TemplateInitParam tmpParam;
 
 	parserThread = SCE_NULL;
@@ -321,25 +322,25 @@ menu::list::Page::Page(const char* path, const wchar_t *keyword)
 	g_vbPlugin->TemplateOpen(g_root, &searchParam, &tmpParam);
 
 	searchParam.hash = VBUtils::GetHash("plane_list_bg");
-	root = (ui::Plane *)g_root->GetChildByHash(&searchParam, 0);
+	root = (ui::Plane *)g_root->GetChild(&searchParam, 0);
 	root->hash = (SceUInt32)root;
-	common::Utils::WidgetStateTransition(0.0f, root, ui::Widget::Animation_Reset, SCE_FALSE, SCE_TRUE);
+	effect::Play(0.0f, root, effect::EffectType_Reset, SCE_FALSE, SCE_TRUE);
 
 	searchParam.hash = VBUtils::GetHash("button_common_back");
-	ui::Widget *backButton = g_rootPage->GetChildByHash(&searchParam, 0);
+	ui::Widget *backButton = g_rootPage->GetChild(&searchParam, 0);
 
 	// For VBackup back button is always present
 	/*
 	if (!VBUtils::IsRootDevice(cwd->data))
-		backButton->PlayAnimation(300.0f, ui::Widget::Animation_Reset);
+		backButton->PlayEffect(300.0f, effect::EffectType_Reset);
 	else
-		backButton->PlayAnimationReverse(0.0f, ui::Widget::Animation_Reset);
+		backButton->PlayEffectReverse(0.0f, effect::EffectType_Reset);
 	*/
 
-	backButton->PlayAnimation(300.0f, ui::Widget::Animation_Reset);
+	backButton->PlayEffect(300.0f, effect::EffectType_Reset);
 
 	searchParam.hash = VBUtils::GetHash("list_scroll_box");
-	box = (ui::Box *)root->GetChildByHash(&searchParam, 0);
+	box = (ui::Box *)root->GetChild(&searchParam, 0);
 	box->hash = (SceUInt32)box;
 
 	PopulateEntries(path);
@@ -354,15 +355,15 @@ menu::list::Page::Page(const char* path, const wchar_t *keyword)
 	/*
 	if (g_currentDispFilePage != SCE_NULL) {
 		if (g_currentDispFilePage->prev != SCE_NULL) {
-			g_currentDispFilePage->prev->root->PlayAnimationReverse(0.0f, ui::Widget::Animation_Reset);
+			g_currentDispFilePage->prev->root->PlayEffectReverse(0.0f, effect::EffectType_Reset);
 			if (g_currentDispFilePage->prev->root->animationStatus & 0x80)
 				g_currentDispFilePage->prev->root->animationStatus &= ~0x80;
 		}
-		g_currentDispFilePage->root->PlayAnimation(0.0f, ui::Widget::Animation_3D_SlideToBack1);
+		g_currentDispFilePage->root->PlayEffect(0.0f, effect::EffectType_3D_SlideToBack1);
 		if (g_currentDispFilePage->root->animationStatus & 0x80)
 			g_currentDispFilePage->root->animationStatus &= ~0x80;
 	}
-	root->PlayAnimation(-5000.0f, ui::Widget::Animation_3D_SlideFromFront);
+	root->PlayEffect(-5000.0f, effect::EffectType_3D_SlideFromFront);
 	if (root->animationStatus & 0x80)
 		root->animationStatus &= ~0x80;
 	*/
@@ -382,15 +383,15 @@ menu::list::Page::~Page()
 		delete parserThread;
 	}
 
-	common::Utils::WidgetStateTransition(-100.0f, root, ui::Widget::Animation_3D_SlideFromFront, SCE_TRUE, SCE_FALSE);
+	effect::Play(-100.0f, root, effect::EffectType_3D_SlideFromFront, SCE_TRUE, SCE_FALSE);
 
 	if (prev != SCE_NULL) {
-		prev->root->PlayAnimationReverse(0.0f, ui::Widget::Animation_3D_SlideToBack1);
-		prev->root->PlayAnimation(0.0f, ui::Widget::Animation_Reset);
+		prev->root->PlayEffectReverse(0.0f, effect::EffectType_3D_SlideToBack1);
+		prev->root->PlayEffect(0.0f, effect::EffectType_Reset);
 		if (prev->root->animationStatus & 0x80)
 			prev->root->animationStatus &= ~0x80;
 		if (prev->prev != SCE_NULL) {
-			prev->prev->root->PlayAnimation(0.0f, ui::Widget::Animation_Reset);
+			prev->prev->root->PlayEffect(0.0f, effect::EffectType_Reset);
 			if (prev->prev->root->animationStatus & 0x80)
 				prev->prev->root->animationStatus &= ~0x80;
 		}
@@ -414,20 +415,20 @@ SceVoid menu::list::Page::ClearEntries(Entry *entry)
 
 SceInt32 menu::list::Page::Cmpstringp(const ScePVoid p1, const ScePVoid p2)
 {
-	io::Dir::Dirent *entryA = (io::Dir::Dirent *)p1;
-	io::Dir::Dirent *entryB = (io::Dir::Dirent *)p2;
+	Dir::Entry *entryA = (Dir::Entry *)p1;
+	Dir::Entry *entryB = (Dir::Entry *)p2;
 
-	if ((entryA->type == io::Type_Dir) && (entryB->type != io::Type_Dir))
+	if ((entryA->type == Dir::Entry::Type_Dir) && (entryB->type != Dir::Entry::Type_Dir))
 		return -1;
-	else if ((entryA->type != io::Type_Dir) && (entryB->type == io::Type_Dir))
+	else if ((entryA->type != Dir::Entry::Type_Dir) && (entryB->type == Dir::Entry::Type_Dir))
 		return 1;
 	else {
 		switch (menu::settings::Settings::GetInstance()->sort) {
 		case 0: // Sort alphabetically (ascending - A to Z)
-			return sce_paf_strcasecmp(entryA->name.data, entryB->name.data);
+			return sce_paf_strcasecmp(entryA->name.c_str(), entryB->name.c_str());
 			break;
 		case 1: // Sort alphabetically (descending - Z to A)
-			return sce_paf_strcasecmp(entryB->name.data, entryA->name.data);
+			return sce_paf_strcasecmp(entryB->name.c_str(), entryA->name.c_str());
 			break;
 		case 2: // Sort by file size (largest first)
 			return entryA->size > entryB->size ? -1 : entryA->size < entryB->size ? 1 : 0;
@@ -443,25 +444,25 @@ SceInt32 menu::list::Page::Cmpstringp(const ScePVoid p1, const ScePVoid p2)
 
 SceInt32 menu::list::Page::PopulateEntries(const char *rootPath)
 {
-	io::Dir dir;
+	Dir dir;
 
 	if (dir.Open(rootPath) >= 0) {
 
 		int entryCount = 0;
-		io::Dir::Dirent *fsEntries = new io::Dir::Dirent[MAX_ENTRIES];
+		Dir::Entry *fsEntries = new Dir::Entry[MAX_ENTRIES];
 
 		while (dir.Read(&fsEntries[entryCount]) >= 0)
 			entryCount++;
 
 		dir.Close();
-		sce_paf_qsort(fsEntries, entryCount, sizeof(io::Dir::Dirent), (int(*)(const void *, const void *))Cmpstringp);
+		sce_paf_qsort(fsEntries, entryCount, sizeof(Dir::Entry), (int(*)(const void *, const void *))Cmpstringp);
 
 		for (int i = 0; i < entryCount; i++) {
 			// Allocate Memory
 			Entry *item = new Entry();
 
 			// Set type and check if supported
-			if (fsEntries[i].type != io::Type_Dir) {
+			if (fsEntries[i].type != Dir::Entry::Type_Dir) {
 
 				// Only dirs are supported in VBackup
 				/*
@@ -478,11 +479,11 @@ SceInt32 menu::list::Page::PopulateEntries(const char *rootPath)
 				delete item;
 				continue;
 			}
-			else if (fsEntries[i].type == io::Type_Dir) {
+			else if (fsEntries[i].type == Dir::Entry::Type_Dir) {
 
 				string sfoPath = *cwd + "/" + fsEntries[i].name + "/sce_sys/param.sfo";
 
-				if (sce_paf_strlen(fsEntries[i].name.data) != 9 || !io::Misc::Exists(sfoPath.data)) {
+				if (sce_paf_strlen(fsEntries[i].name.c_str()) != 9 || !LocalFile::Exists(sfoPath.c_str())) {
 					delete item;
 					continue;
 				}
@@ -494,9 +495,9 @@ SceInt32 menu::list::Page::PopulateEntries(const char *rootPath)
 				continue;
 			}
 
-			item->name = new swstring(fsEntries[i].name.data);
+			item->name = new swstring(fsEntries[i].name.c_str());
 
-			item->name->string.ToWString(&item->name->wstring);
+			ccc::UTF8toUTF16(&item->name->string, &item->name->wstring);
 
 			entryNum++;
 

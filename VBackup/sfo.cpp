@@ -13,15 +13,17 @@ SFO::SFO(const char *path)
 {
 	SceInt32 res = -1;
 	SceSize fsize = 0;
-	io::File file;
+	LocalFile file;
+	LocalFile::OpenArg oarg;
 
 	buffer = SCE_NULL;
 
-	res = file.Open(path, SCE_O_RDONLY, 0);
+	oarg.filename = path;
+	res = file.Open(&oarg);
 	if (res < 0)
 		return;
 
-	fsize = (SceSize)file.GetSize();
+	fsize = (SceSize)file.GetFileSize();
 	buffer = sce_paf_malloc(fsize);
 	if (!buffer)
 		return;
@@ -79,8 +81,8 @@ SceInt32 SFO::GetString(const char *name, string *pStr)
 	for (i = 0; i < header->count; i++) {
 		if (sce_paf_strcmp((char *)(buffer + header->keyofs + entries[i].nameofs), name) == 0) {
 			char *data = (char *)(buffer + header->valofs + entries[i].dataofs);
-			pStr->Clear();
-			pStr->Append(data, sce_paf_strlen(data));
+			pStr->clear();
+			pStr->append(data, sce_paf_strlen(data));
 			return SCE_OK;
 		}
 	}

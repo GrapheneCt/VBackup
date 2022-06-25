@@ -13,7 +13,7 @@ namespace menu {
 		class Page;
 		class Entry;
 
-		class BackButtonCB : public ui::Widget::EventCallback
+		class BackButtonCB : public ui::EventCallback
 		{
 		public:
 
@@ -31,7 +31,7 @@ namespace menu {
 
 		};
 
-		class ButtonCB : public ui::Widget::EventCallback
+		class ButtonCB : public ui::EventCallback
 		{
 		public:
 

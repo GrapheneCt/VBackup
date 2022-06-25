@@ -20,7 +20,7 @@ namespace menu {
 			ButtonHash_BackupList = 0xf21cc2bc
 		};
 
-		class ButtonCB : public ui::Widget::EventCallback
+		class ButtonCB : public ui::EventCallback
 		{
 		public:
 
